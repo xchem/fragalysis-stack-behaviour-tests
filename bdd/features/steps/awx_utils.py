@@ -27,7 +27,7 @@ def launch_awx_job_template(template, extra_vars):
     print(f"Launching AWX JobTemplate {template}...")
     print(f"JobTemplate extra_vars={extra_vars}")
 
-    cmd = f"awx job_templates launch  --monitor \"{template}\""
+    cmd = f"awx job_templates launch --wait \"{template}\""
 
     if extra_vars:
         fp = tempfile.NamedTemporaryFile(mode="w", delete_on_close=False)
