@@ -1,5 +1,8 @@
 # fragalysis-stack-behaviour-tests
 
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Packaged with Poetry](https://img.shields.io/badge/packaging-poetry-cyan.svg)](https://python-poetry.org/)
 
 A repository of (experimental) Python-based end-2-end behaviour tests using [playwrite]
@@ -12,7 +15,7 @@ The project uses: -
 
 - [pre-commit] to enforce linting of files prior to committing them to the
   upstream repository
-- [Commitizen] to enforce a [Convention Commit] commit message format
+- [Commitizen] to enforce a [Conventional Commit] commit message format
 - [Black] as a code formatter
 - [Poetry] as a package manager
 
@@ -68,6 +71,7 @@ Then run the tests from the project root or `playwrite` directory using pytest: 
 [behave]: https://behave.readthedocs.io/en/latest/
 [black]: https://black.readthedocs.io/en/stable
 [commitizen]: https://commitizen-tools.github.io/commitizen/
+[conventional commit]: https://www.conventionalcommits.org/en/v1.0.0/
 [cucumber]: https://cucumber.io/
 [playwrite]: https://playwright.dev/python/docs/intro
 [pre-commit]: https://pre-commit.com
