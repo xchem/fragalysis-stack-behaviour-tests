@@ -15,7 +15,7 @@ behave
 ```
 
 >   You can capture stdout issued by the underlying behaviour tests
-    by adding the `--output` command-line option.
+    by adding the `--capture` command-line option.
 
 ---
 
