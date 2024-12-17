@@ -1,4 +1,5 @@
 """AWX utilities for steps."""
+
 import os
 import subprocess
 import tempfile
@@ -7,9 +8,9 @@ from typing import Optional
 import yaml
 
 # For stack testing to work we'll need a number of variables: -
-_AWX_HOSTNAME: Optional[str] = os.environ.get('STACKTEST_AWX_HOSTNAME')
-_AWX_USERNAME: Optional[str] = os.environ.get('STACKTEST_AWX_USERNAME')
-_AWX_PASSWORD: Optional[str] = os.environ.get('STACKTEST_AWX_PASSWORD')
+_AWX_HOSTNAME: Optional[str] = os.environ.get("STACKTEST_AWX_HOSTNAME")
+_AWX_USERNAME: Optional[str] = os.environ.get("STACKTEST_AWX_USERNAME")
+_AWX_PASSWORD: Optional[str] = os.environ.get("STACKTEST_AWX_PASSWORD")
 
 
 def get_stack_url(name: str) -> str:
@@ -41,7 +42,7 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    cmd = f"awx job_templates launch --wait \"{template}\""
+    cmd = f'awx job_templates launch --wait "{template}"'
 
     # Put any extra_vars into a temporary YAML file
     if extra_vars:
@@ -53,9 +54,9 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
 
     # Use the environment for sensitive AWX API material
     my_env = os.environ.copy()
-    my_env['CONTROLLER_HOST'] = f"https://{_AWX_HOSTNAME}"
-    my_env['CONTROLLER_USERNAME'] = _AWX_USERNAME
-    my_env['CONTROLLER_PASSWORD'] = _AWX_PASSWORD
+    my_env["CONTROLLER_HOST"] = f"https://{_AWX_HOSTNAME}"
+    my_env["CONTROLLER_USERNAME"] = _AWX_USERNAME
+    my_env["CONTROLLER_PASSWORD"] = _AWX_PASSWORD
 
     _ = subprocess.run(cmd, shell=True, check=True, env=my_env, capture_output=True)
 

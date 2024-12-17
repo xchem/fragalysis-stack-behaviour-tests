@@ -1,13 +1,14 @@
 from typing import Optional
 
-from behave import given, when, then
 import requests
-
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
+from behave import given, then, when
 
 # For stack testing to work we'll need a number of variables: -
-_AWX_STACK_CREATE_JOB_TEMPLATE: str = 'User (%(username)s) Developer Fragalysis Stack'
-_AWX_STACK_WIPE_JOB_TEMPLATE: str = 'User (%(username)s) Developer Fragalysis Stack [WIPE]'
+_AWX_STACK_CREATE_JOB_TEMPLATE: str = "User (%(username)s) Developer Fragalysis Stack"
+_AWX_STACK_WIPE_JOB_TEMPLATE: str = (
+    "User (%(username)s) Developer Fragalysis Stack [WIPE]"
+)
 
 _REST_TIMEOUT: int = 8
 
@@ -19,10 +20,14 @@ def step_impl(context, stack_name) -> None:
     lower_stack_name = stack_name.lower()
     print(f"Initialising stack '{lower_stack_name}'...")
 
-    wipe_jt = _AWX_STACK_WIPE_JOB_TEMPLATE % {"username": get_stack_username().capitalize()}
+    wipe_jt = _AWX_STACK_WIPE_JOB_TEMPLATE % {
+        "username": get_stack_username().capitalize()
+    }
     launch_awx_job_template(wipe_jt, extra_vars={"stack_name": lower_stack_name})
 
-    create_jt = _AWX_STACK_CREATE_JOB_TEMPLATE % {"username": get_stack_username().capitalize()}
+    create_jt = _AWX_STACK_CREATE_JOB_TEMPLATE % {
+        "username": get_stack_username().capitalize()
+    }
     launch_awx_job_template(create_jt, extra_vars={"stack_name": lower_stack_name})
 
     context.stack_name = lower_stack_name

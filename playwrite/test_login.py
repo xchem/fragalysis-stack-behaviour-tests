@@ -3,10 +3,9 @@ from typing import Optional
 
 from playwright.sync_api import Page, expect
 
-
-_STACK_HOSTNAME: Optional[str] = os.environ.get('STACKTEST_STACK_HOSTNAME')
-_STACK_USERNAME: Optional[str] = os.environ.get('STACKTEST_STACK_USERNAME')
-_STACK_PASSWORD: Optional[str] = os.environ.get('STACKTEST_STACK_PASSWORD')
+_STACK_HOSTNAME: Optional[str] = os.environ.get("STACKTEST_STACK_HOSTNAME")
+_STACK_USERNAME: Optional[str] = os.environ.get("STACKTEST_STACK_USERNAME")
+_STACK_PASSWORD: Optional[str] = os.environ.get("STACKTEST_STACK_PASSWORD")
 
 if not _STACK_HOSTNAME:
     raise ValueError("STACKTEST_STACK_HOSTNAME is not set (e.g. example.com)")
