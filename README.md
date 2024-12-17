@@ -5,6 +5,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Packaged with Poetry](https://img.shields.io/badge/packaging-poetry-cyan.svg)](https://python-poetry.org/)
 
+![GitHub Tag](https://img.shields.io/github/v/tag/xchem/fragalysis-stack-behaviour-tests)
+
 A repository of (experimental) Python-based end-2-end behaviour tests using [playwrite]
 for UI-based testing of the Fragalysis Stack, and [behave] for [cucumber]-like testing
 of the API.
