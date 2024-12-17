@@ -1,4 +1,4 @@
-Feature: Basic stack operations
+Feature: Empty stack operations
 
   Background:
     Given an empty behaviour stack
