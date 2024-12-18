@@ -50,9 +50,8 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    cmd = f"awx job_templates launch --wait"
-
     # Put any extra_vars into a temporary YAML file
+    cmd = "awx job_templates launch --wait"
     if extra_vars:
         fp = tempfile.NamedTemporaryFile(
             suffix=".tmp",
@@ -64,10 +63,10 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
         fp.close()
 
         cmd += f" --extra_vars @{fp.name}"
-
     # End the command with the template name
-    cmd += " {template}"
+    cmd += " '{template}'"
 
+    print(f"AWX JobTemplate cmd='{cmd}'")
     #    cmd_as_sequence = shlex.split(cmd)
     completed_process = subprocess.run(cmd, shell=True, capture_output=True)
     if completed_process.returncode != 0:
