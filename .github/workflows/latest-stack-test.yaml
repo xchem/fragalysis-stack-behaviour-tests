@@ -5,13 +5,15 @@ on:
   push:
     branches:
     - main
+  schedule:
+  - cron: '35 6 * * *'
 
 jobs:
   test-alan:
 
     # We have to avoid Python 3.12 (3.12.8) as the GitHub Action
     # always generates an argparse error when we try and run
-    # the awx command form within the behave tests.
+    # the awx command from within the 'behave' tests.
     strategy:
       matrix:
         python-version:
@@ -19,6 +21,7 @@ jobs:
 
     runs-on: ubuntu-latest
     environment: behaviour-stack-alan
+
     steps:
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
