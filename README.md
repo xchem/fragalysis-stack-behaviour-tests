@@ -7,6 +7,8 @@
 
 ![GitHub Tag](https://img.shields.io/github/v/tag/xchem/fragalysis-stack-behaviour-tests)
 
+[![latest stack test](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml/badge.svg)](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml)
+
 A repository of (experimental) Python-based end-2-end behaviour tests using [playwrite]
 for UI-based testing of the Fragalysis Stack, and [behave] for [cucumber]-like testing
 of the API.

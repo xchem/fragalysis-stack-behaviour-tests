@@ -1,9 +1,9 @@
 """AWX utilities for steps."""
 
 import os
-import pathlib
 import shlex
 import subprocess
+import tempfile
 from typing import Optional
 
 import yaml
@@ -51,27 +51,26 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    # Put any extra_vars into a well-known temporary YAML file
-    awx_extra_vars = extra_vars or {}
-    with open("awx-extra-vars.yaml", "w", encoding="utf-8") as fp:
-        yaml.dump(awx_extra_vars, fp)
+    cmd = "awx job_templates launch --wait"
 
-    # Split the command into a sequence for the subprocess command
-    # and then just run the shell-script in the features/steps directory.
-    this_directory = pathlib.Path(__file__).parent.resolve()
-    cmd_as_sequence = shlex.split(f"{this_directory}/awx-cmd.sh '{template}'")
-    print(f"AWX JobTemplate cmd_as_sequence='{cmd_as_sequence}'")
-    process = subprocess.Popen(
-        cmd_as_sequence,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    out, err = process.communicate()
-    if process.returncode != 0:
+    # Put any extra_vars into a local temporary YAML file
+    if extra_vars:
+        fp = tempfile.NamedTemporaryFile(mode="w", delete_on_close=False)
+        yaml.dump(extra_vars, fp)
+        fp.close()
+
+        cmd += f" --extra_vars @{fp.name}"
+
+    cmd += f' "{template}"'
+
+    # Split the command into a sequence for subprocess.run()
+    split_cmd = shlex.split(cmd)
+    cmd_process = subprocess.run(split_cmd, capture_output=True, check=False)
+    if cmd_process.returncode != 0:
         print(f"Error launching AWX JobTemplate '{template}'")
-        print(f"process.returncode: {process.returncode}")
-        print(f"STDOUT:\n{out}")
-        print(f"STDERR:\n{err}")
+        print(f"process.returncode: {cmd_process.returncode}")
+        print(f"STDOUT:\n{cmd_process.stdout}")
+        print(f"STDERR:\n{cmd_process.stderr}")
         print(f"_CONTROLLER_HOST={_CONTROLLER_HOST}")
         print(f"_CONTROLLER_USERNAME={_CONTROLLER_USERNAME}")
         assert False
