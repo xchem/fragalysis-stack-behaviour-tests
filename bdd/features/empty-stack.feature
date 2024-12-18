@@ -67,4 +67,4 @@ Feature: Empty stack public operations
 
       Examples:
         | endpoint          | size |
-        | /api/tag_category | 9    |
+        | /api/tag_category |    9 |
