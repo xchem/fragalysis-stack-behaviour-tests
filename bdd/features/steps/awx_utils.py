@@ -68,8 +68,8 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     # End the command with the template name
     cmd += " {template}"
 
-    cmd_as_sequence = shlex.split(cmd)
-    completed_process = subprocess.run(cmd_as_sequence, capture_output=True)
+    #    cmd_as_sequence = shlex.split(cmd)
+    completed_process = subprocess.run(cmd, shell=True, capture_output=True)
     if completed_process.returncode != 0:
         print(f"Error launching AWX JobTemplate '{template}'")
         print(f"STDOUT:\n{completed_process.stdout}")
