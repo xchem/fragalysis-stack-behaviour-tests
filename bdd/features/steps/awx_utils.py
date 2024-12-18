@@ -35,6 +35,11 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     while also providing extra variables via a temporary file.
     """
 
+    # We need the environment to be set for sensitive AWX API material: -
+    #
+    # export CONTROLLER_HOST=https://example.com
+    # export CONTROLLER_USERNAME=username
+    # export CONTROLLER_PASSWORD=password
     if not _CONTROLLER_HOST:
         raise ValueError("CONTROLLER_HOST is not set (e.g. example.com)")
     if not _CONTROLLER_USERNAME:
@@ -45,7 +50,7 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    cmd = f'awx job_templates launch --wait "{template}"'
+    cmd = f"awx job_templates launch --wait"
 
     # Put any extra_vars into a temporary YAML file
     if extra_vars:
@@ -60,21 +65,15 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
 
         cmd += f" --extra_vars @{fp.name}"
 
-    # We need the environment to be set for sensitive AWX API material: -
-    #
-    # export CONTROLLER_HOST=https://example.com
-    # export CONTROLLER_USERNAME=username
-    # export CONTROLLER_PASSWORD=password
+    # End the command with the template name
+    cmd += " {template}"
 
     cmd_as_sequence = shlex.split(cmd)
     completed_process = subprocess.run(cmd_as_sequence, capture_output=True)
     if completed_process.returncode != 0:
-        print(
-            f"Error launching AWX JobTemplate '{template}' stdout:\n{completed_process.stdout}"
-        )
-        print(
-            f"Error launching AWX JobTemplate '{template}' stderr:\n{completed_process.stderr}"
-        )
+        print(f"Error launching AWX JobTemplate '{template}'")
+        print(f"STDOUT:\n{completed_process.stdout}")
+        print(f"STDERR:\n{completed_process.stderr}")
         print(f"_CONTROLLER_HOST={_CONTROLLER_HOST}")
         print(f"_CONTROLLER_USERNAME={_CONTROLLER_USERNAME}")
         assert False
