@@ -1,3 +1,5 @@
+# See https://behave.readthedocs.io/en/stable/behave.html#configuration-files
 [behave]
+show_source = false
 stop = true
 summary = false
