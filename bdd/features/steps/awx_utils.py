@@ -51,7 +51,7 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
     # Put any extra_vars into a temporary YAML file
-    cmd = "awx job_templates launch --wait --verbosity 5"
+    cmd = "awx job_templates launch --wait"
     if extra_vars:
         fp = tempfile.NamedTemporaryFile(
             suffix=".tmp",
