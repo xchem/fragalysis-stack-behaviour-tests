@@ -1,9 +1,9 @@
 """AWX utilities for steps."""
 
 import os
+import pathlib
 import shlex
 import subprocess
-import tempfile
 from typing import Optional
 
 import yaml
@@ -11,6 +11,7 @@ import yaml
 # For stack testing to work we'll need a number of variables.
 # The AWX host (without a protocol, i.e. 'example.com') and
 # a user that can run the templates we'll be using (set in steps.py).
+# The AWX command shell-script can be found in the 'bdd' directory.
 _CONTROLLER_HOST: Optional[str] = os.environ.get("CONTROLLER_HOST")
 _CONTROLLER_USERNAME: Optional[str] = os.environ.get("CONTROLLER_USERNAME")
 _CONTROLLER_PASSWORD: Optional[str] = os.environ.get("CONTROLLER_PASSWORD")
@@ -50,24 +51,15 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    # Put any extra_vars into a temporary YAML file
-    cmd = "awx job_templates launch --wait"
-    if extra_vars:
-        fp = tempfile.NamedTemporaryFile(
-            suffix=".tmp",
-            dir=".",
-            mode="w",
-            delete_on_close=False,
-        )
-        yaml.dump(extra_vars, fp)
-        fp.close()
-
-        cmd += f" --extra_vars @{fp.name}"
-    # End the command with the template name
-    cmd += f" '{template}'"
+    # Put any extra_vars into a well-known temporary YAML file
+    awx_extra_vars = extra_vars or {}
+    with open("awx-extra-vars.yaml", "w", encoding="utf-8") as fp:
+        yaml.dump(awx_extra_vars, fp)
 
     # Split the command into a sequence for the subprocess command
-    cmd_as_sequence = shlex.split(cmd)
+    # and then just run the shell-script in the features/steps directory.
+    this_directory = pathlib.Path(__file__).parent.resolve()
+    cmd_as_sequence = shlex.split(f"{this_directory}/awx-cmd.sh '{template}'")
     print(f"AWX JobTemplate cmd_as_sequence='{cmd_as_sequence}'")
     process = subprocess.Popen(
         cmd_as_sequence,
