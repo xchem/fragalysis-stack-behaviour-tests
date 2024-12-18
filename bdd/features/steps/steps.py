@@ -10,11 +10,11 @@ _AWX_STACK_WIPE_JOB_TEMPLATE: str = (
     "User (%(username)s) Developer Fragalysis Stack [WIPE]"
 )
 
-_REST_TIMEOUT: int = 8
+_REQUEST_TIMEOUT: int = 8
 
 
 @given("an empty {stack_name} stack")
-def step_impl(context, stack_name) -> None:
+def step_impl_00(context, stack_name) -> None:
     """Wipe any existing stack content and create a new (empty) one."""
 
     lower_stack_name = stack_name.lower()
@@ -35,16 +35,22 @@ def step_impl(context, stack_name) -> None:
     context.stack_url = get_stack_url(lower_stack_name)
 
 
-@given("the stack is responding")
-def step_impl_00(context) -> None:
-    resp = requests.get(context.stack_url, timeout=_REST_TIMEOUT)
-    assert resp.status_code == 200
-
-
-@then("there should be {number:d} targets")
-def step_impl_01(context, number) -> None:
+@then("the stack landing page should return http {status_code:d}")
+def step_impl_01(context, status_code) -> None:
     assert context.failed is False
-    path: str = "/api/targets/"
-    resp = requests.get(context.stack_url + path, timeout=_REST_TIMEOUT)
-    count: Optional[int] = resp.json().get("count")
-    assert count == number
+    resp = requests.get(context.stack_url, timeout=_REQUEST_TIMEOUT)
+    assert resp.status_code == status_code
+
+
+@when("I call {endpoint} on the {stack_name} stack")
+def step_impl_02(context, endpoint, stack_name) -> None:
+    assert context.failed is False
+    context.stack_url = get_stack_url(stack_name.lower())
+    resp = requests.get(context.stack_url + endpoint, timeout=_REQUEST_TIMEOUT)
+    context.response_count = resp.json().get("count")
+
+
+@then("the length of the returned list should be {count:d}")
+def step_impl_03(context, count) -> None:
+    assert context.failed is False
+    assert context.response_count == count
