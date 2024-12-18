@@ -7,7 +7,9 @@ from typing import Optional
 
 import yaml
 
-# For stack testing to work we'll need a number of variables: -
+# For stack testing to work we'll need a number of variables.
+# The AWX host (without a protocol, i.e. 'example.com') and
+# a user that can run the templates we'll be using (set in steps.py).
 _AWX_HOSTNAME: Optional[str] = os.environ.get("BEHAVIOUR_AWX_HOSTNAME")
 _AWX_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_AWX_USERNAME")
 _AWX_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_AWX_PASSWORD")
@@ -46,7 +48,12 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
 
     # Put any extra_vars into a temporary YAML file
     if extra_vars:
-        fp = tempfile.NamedTemporaryFile(mode="w", delete_on_close=False)
+        fp = tempfile.NamedTemporaryFile(
+            suffix=".tmp",
+            dir=".",
+            mode="w",
+            delete_on_close=False,
+        )
         yaml.dump(extra_vars, fp)
         fp.close()
 
