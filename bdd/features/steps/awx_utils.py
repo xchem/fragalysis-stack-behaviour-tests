@@ -67,7 +67,7 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     # export CONTROLLER_PASSWORD=password
 
     cmd_as_sequence = shlex.split(cmd)
-    completed_process = subprocess.run(cmd_as_sequence, capture_output=True, check=True)
+    completed_process = subprocess.run(cmd_as_sequence, capture_output=True)
     if completed_process.returncode != 0:
         print(
             f"Error launching AWX JobTemplate '{template}' stdout:\n{completed_process.stdout}"
