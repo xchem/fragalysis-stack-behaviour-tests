@@ -66,18 +66,20 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     # End the command with the template name
     cmd += f" '{template}'"
 
-    print(f"AWX JobTemplate cmd='{cmd}'")
-    #    cmd_as_sequence = shlex.split(cmd)
-    completed_process = subprocess.run(
-        cmd,
-        shell=True,
-        capture_output=True,
-        check=False,
+    # Split the command into a sequence for the subprocess command
+    cmd_as_sequence = shlex.split(cmd)
+    print(f"AWX JobTemplate cmd_as_sequence='{cmd_as_sequence}'")
+    process = subprocess.Popen(
+        cmd_as_sequence,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
-    if completed_process.returncode != 0:
+    out, err = process.communicate()
+    if process.returncode != 0:
         print(f"Error launching AWX JobTemplate '{template}'")
-        print(f"STDOUT:\n{completed_process.stdout}")
-        print(f"STDERR:\n{completed_process.stderr}")
+        print(f"process.returncode: {process.returncode}")
+        print(f"STDOUT:\n{out}")
+        print(f"STDERR:\n{err}")
         print(f"_CONTROLLER_HOST={_CONTROLLER_HOST}")
         print(f"_CONTROLLER_USERNAME={_CONTROLLER_USERNAME}")
         assert False
