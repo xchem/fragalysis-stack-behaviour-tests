@@ -1,19 +1,19 @@
-Feature: Empty stack public operations
+Feature: Empty stack public API operations
 
-  Rule: Stacks should respond
+  Rule: Start with an empty stack
 
     Scenario: Check new empty stacks respond
-      Given an empty behaviour stack
+      Given an empty behaviour stack tagged latest
       Then the stack landing page should return http 200
 
-  Rule: Empty stacks shouldn't have any public API content
+  Rule: Empty stacks don't have content on the main public API methods
 
-    Scenario Outline: Empty stacks shouldn't have any public API data
-      When I call <endpoint> on the behaviour stack
+    Scenario Outline: Check the main public API methods
+      When I call <method> on the behaviour stack
       Then the length of the returned list should be 0
 
       Examples:
-        | endpoint                        |
+        | method                          |
         | /api/action-type                |
         | /api/canon_sites                |
         | /api/canon_site_confs           |
@@ -61,10 +61,10 @@ Feature: Empty stack public operations
 
   Rule: Empty stacks should have some tag API categories
 
-    Scenario Outline: Empty stacks should have some tag API categories
-      When I call <endpoint> on the behaviour stack
+    Scenario Outline: Check the Tag Categories API method
+      When I call <method> on the behaviour stack
       Then the length of the returned list should be <size>
 
       Examples:
-        | endpoint          | size |
+        | method            | size |
         | /api/tag_category |    9 |
