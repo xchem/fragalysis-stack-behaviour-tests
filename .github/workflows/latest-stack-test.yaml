@@ -41,6 +41,6 @@ jobs:
         source ../.venv/bin/activate
         behave
       env:
-        BEHAVIOUR_AWX_HOSTNAME: ${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
-        BEHAVIOUR_AWX_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
-        BEHAVIOUR_AWX_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
+        CONTROLLER_HOST: ${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
+        CONTROLLER_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
+        CONTROLLER_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
