@@ -65,6 +65,6 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     # export CONTROLLER_USERNAME=username
     # export CONTROLLER_PASSWORD=password
 
-    _ = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+    _ = subprocess.run(cmd, shell=True, check=True)
 
     print(f"Successfully launched AWX JobTemplate '{template}'...")
