@@ -54,8 +54,9 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     cmd = "awx job_templates launch --wait"
 
     # Put any extra_vars into a local temporary YAML file
+    fp = None
     if extra_vars:
-        fp = tempfile.NamedTemporaryFile(mode="w", delete_on_close=False)
+        fp = tempfile.NamedTemporaryFile(mode="w", delete=False)
         yaml.dump(extra_vars, fp)
         fp.close()
 
@@ -76,3 +77,6 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
         assert False
 
     print(f"Successfully launched AWX JobTemplate '{template}'...")
+
+    if fp:
+        os.remove(fp.name)
