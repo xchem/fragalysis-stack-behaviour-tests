@@ -34,7 +34,11 @@ jobs:
     - name: Install Dependencies
       run: poetry install --no-interaction --with dev
     - name: Static Analysis
-      run: pre-commit run --all-files
+      run: |
+        source .venv/bin/activate
+        pre-commit run --all-files
     - name: Behaviour Tests
       working-directory: ./bdd
-      run: behave
+      run: |
+        source ../.venv/bin/activate
+        behave
