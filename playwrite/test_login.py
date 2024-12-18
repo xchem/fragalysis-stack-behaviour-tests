@@ -3,22 +3,22 @@ from typing import Optional
 
 from playwright.sync_api import Page, expect
 
-_STACK_HOSTNAME: Optional[str] = os.environ.get("STACKTEST_STACK_HOSTNAME")
-_STACK_USERNAME: Optional[str] = os.environ.get("STACKTEST_STACK_USERNAME")
-_STACK_PASSWORD: Optional[str] = os.environ.get("STACKTEST_STACK_PASSWORD")
-_STACK_KC_USERNAME: Optional[str] = os.environ.get("STACKTEST_STACK_KC_USERNAME")
-_STACK_KC_PASSWORD: Optional[str] = os.environ.get("STACKTEST_STACK_KC_PASSWORD")
+_STACK_HOSTNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_HOSTNAME")
+_STACK_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_USERNAME")
+_STACK_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_STACK_PASSWORD")
+_STACK_KC_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_KC_USERNAME")
+_STACK_KC_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_STACK_KC_PASSWORD")
 
 if not _STACK_HOSTNAME:
-    raise ValueError("STACKTEST_STACK_HOSTNAME is not set (e.g. example.com)")
+    raise ValueError("BEHAVIOUR_STACK_HOSTNAME is not set (e.g. example.com)")
 if not _STACK_USERNAME:
-    raise ValueError("STACKTEST_STACK_USERNAME is not set")
+    raise ValueError("BEHAVIOUR_STACK_USERNAME is not set")
 if not _STACK_PASSWORD:
-    raise ValueError("STACKTEST_STACK_PASSWORD is not set")
+    raise ValueError("BEHAVIOUR_STACK_PASSWORD is not set")
 if not _STACK_KC_USERNAME:
-    raise ValueError("STACKTEST_STACK_KC_USERNAME is not set")
+    raise ValueError("BEHAVIOUR_STACK_KC_USERNAME is not set")
 if not _STACK_KC_PASSWORD:
-    raise ValueError("STACKTEST_STACK_KC_PASSWORD is not set")
+    raise ValueError("BEHAVIOUR_STACK_KC_PASSWORD is not set")
 
 
 def _cas_login(page: Page) -> None:

@@ -8,22 +8,22 @@ from typing import Optional
 import yaml
 
 # For stack testing to work we'll need a number of variables: -
-_AWX_HOSTNAME: Optional[str] = os.environ.get("STACKTEST_AWX_HOSTNAME")
-_AWX_USERNAME: Optional[str] = os.environ.get("STACKTEST_AWX_USERNAME")
-_AWX_PASSWORD: Optional[str] = os.environ.get("STACKTEST_AWX_PASSWORD")
+_AWX_HOSTNAME: Optional[str] = os.environ.get("BEHAVIOUR_AWX_HOSTNAME")
+_AWX_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_AWX_USERNAME")
+_AWX_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_AWX_PASSWORD")
 
 
 def get_stack_url(name: str) -> str:
     """Returns the AWX username."""
     if not _AWX_USERNAME:
-        raise ValueError("STACKTEST_AWX_USERNAME is not set")
+        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
     return f"https://fragalysis-{_AWX_USERNAME}-{name}.xchem-dev.diamond.ac.uk"
 
 
 def get_stack_username() -> str:
     """Returns the AWX username."""
     if not _AWX_USERNAME:
-        raise ValueError("STACKTEST_AWX_USERNAME is not set")
+        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
     return _AWX_USERNAME
 
 
@@ -33,11 +33,11 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     """
 
     if not _AWX_HOSTNAME:
-        raise ValueError("STACKTEST_AWX_HOSTNAME is not set (e.g. example.com)")
+        raise ValueError("BEHAVIOUR_AWX_HOSTNAME is not set (e.g. example.com)")
     if not _AWX_USERNAME:
-        raise ValueError("STACKTEST_AWX_USERNAME is not set")
+        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
     if not _AWX_PASSWORD:
-        raise ValueError("STACKTEST_AWX_PASSWORD is not set")
+        raise ValueError("BEHAVIOUR_AWX_PASSWORD is not set")
 
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")

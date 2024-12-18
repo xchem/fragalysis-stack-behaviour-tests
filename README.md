@@ -46,7 +46,7 @@ Create a suitable Python environment: -
     poetry install
 
 Many tests rely on sensitive information that's made available through various
-`STACKTEST_*` environment variables. The tests _should_ tell you what you need to
+`BEHAVIOUR_*` environment variables. The tests _should_ tell you what you need to
 provide if something's missing.
 
 ## Running the behaviour tests
