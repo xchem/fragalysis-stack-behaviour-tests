@@ -16,6 +16,7 @@ Feature: Key GET methods need authentication
       | method                            |
       | /api/job_config                   |
       | /api/compound-identifier-types    |
+      | /api/token                        |
 
   Scenario Template: Some REST GET methods should return 'Not Allowed'
     When I call <method> on the behaviour stack

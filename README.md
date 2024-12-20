@@ -13,6 +13,11 @@ A repository of (experimental) Python-based end-2-end behaviour tests using [pla
 for UI-based testing of the Fragalysis Stack, and [behave] for [cucumber]-like testing
 of the API.
 
+If you want any login/authentication logic to work the Fragalysis Stack that's
+under test must be known to the authentication system (Keycloak) using a suitable
+keycloak client ID and secret (which must be provided in the corresponding
+`BEHAVIOUR_*` values).
+
 ## Contributing
 
 The project uses: -

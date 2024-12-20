@@ -3,6 +3,7 @@ from typing import Dict
 import requests
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
 from behave import given, then, when
+from browser_utils import get_stack_client_id_secret, login
 
 # To create a stack we need to know the names of templates (in the AWX server)
 # that are responsible for its creation and destruction: -
@@ -25,9 +26,22 @@ def step_impl_00(context, stack_name, image_tag) -> None:
     lower_stack_name = stack_name.lower()
     print(f"Creating stack '{lower_stack_name}'...")
 
+    # The stack Client ID can be manufactured.
+    # For developer stacks it looks like this: -
+    #  "fragalysis-[awx-username]-[stack-name]-xchem-dev"
+    #
+    # So alan's behaviour stack client ID will be: -
+    #  "fragalysis-alan-behaviour-xchem-dev"
+
+    stack_oidc_rp_client_id: str = (
+        f"fragalysis-{get_stack_username()}-{lower_stack_name}-xchem-dev"
+    )
+
     extra_vars: Dict[str, str] = {
         "stack_name": lower_stack_name,
         "stack_image_tag": image_tag,
+        "stack_oidc_rp_client_id": stack_oidc_rp_client_id,
+        "stack_oidc_rp_client_secret": get_stack_client_id_secret(),
     }
 
     wipe_jt = _AWX_STACK_WIPE_JOB_TEMPLATE % {
@@ -84,3 +98,12 @@ def step_impl_04(context, status_code) -> None:
     status_code"""
     assert context.failed is False
     assert context.status_code == status_code
+
+
+@then("I can login")
+def step_impl_05(context) -> None:
+    """Relies on context members: -
+    status_code"""
+    assert context.failed is False
+    context.session_id = login()
+    assert context.session_id
