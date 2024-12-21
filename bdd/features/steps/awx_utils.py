@@ -18,14 +18,15 @@ _CONTROLLER_PASSWORD: Optional[str] = os.environ.get("CONTROLLER_PASSWORD")
 
 
 def get_stack_url(name: str) -> str:
-    """Returns the AWX username."""
+    """Returns the stack URL (i.e. https://example.com) that is expected to have been
+    created by the AWX Job Template for the AWX user."""
     if not _CONTROLLER_USERNAME:
         raise ValueError("CONTROLLER_USERNAME is not set")
     return f"https://fragalysis-{_CONTROLLER_USERNAME}-{name}.xchem-dev.diamond.ac.uk"
 
 
 def get_stack_username() -> str:
-    """Returns the AWX username."""
+    """Returns the AWX username - tha author of the stack."""
     if not _CONTROLLER_USERNAME:
         raise ValueError("CONTROLLER_USERNAME is not set")
     return _CONTROLLER_USERNAME
