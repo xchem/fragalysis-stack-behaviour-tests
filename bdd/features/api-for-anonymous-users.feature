@@ -5,11 +5,23 @@ Feature: Empty stack public API operations
   These anonymous users should not see errors, but on an empty stack
   shouldn't yield anything. These features expect the stack user not to be logged in.
 
-  Scenario: Check new empty stacks respond
+  Background: We need a new empty stack
+
+    For all the tests here we need to start with a clean (empty) Fragalysis Stack.
+    We do this by ensuring that a new stack exists (creating one if necessary).
+    Stacks have a 'name', and we need specify an image tag like 'latest'.
+    The stack should also be functional, by responding correctly on the landing page.
+
     Given an empty behaviour stack tagged latest
     Then the stack landing page should return http 200
 
   Scenario Template: Check the main public API methods
+
+    These tests, all starting with an empty stack, verify that the selected
+    API methods respond without error to any user who has not logged in.
+    An empty stack has no data so everything tested here should return
+    successfully and with an empty list of objects.
+
     When I call <method> on the behaviour stack
     Then I should get http 200
     And the length of the returned list should be 0
@@ -62,6 +74,10 @@ Feature: Empty stack public API operations
       | /api/xtalform_sites             |
 
   Scenario: Check the Tag Categories API method
+
+    A small number of methods return objects, even on an empty stack.
+    Here we check that an unauthenticated user sees this 'public' data.
+
     When I call /api/tag_category on the behaviour stack
     Then I should get http 200
     And the length of the returned list should be 9

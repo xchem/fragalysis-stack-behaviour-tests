@@ -66,7 +66,7 @@ def _run_login_logic_for_cas(spw: sync_playwright, *, host, user, password) -> s
     resp = page.goto(f"{base_url}/api/token")
     raw_text = unescape(resp.text())
     session_id_value: str = _RE_SESSION_ID.search(raw_text).group(1)
-    print(f"Got Session ID")
+    print("Got Session ID")
 
     browser.close()
 
