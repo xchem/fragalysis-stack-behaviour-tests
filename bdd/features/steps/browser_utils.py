@@ -6,7 +6,6 @@ from typing import Optional
 from playwright.sync_api import expect, sync_playwright
 
 # Fragalysis Stack hostname (i.e. example.com) and credentials for a CAS user
-_STACK_HOSTNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_HOSTNAME")
 _STACK_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_USERNAME")
 _STACK_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_STACK_PASSWORD")
 _STACK_CLIENT_ID_SECRET: Optional[str] = os.environ.get(
@@ -24,10 +23,8 @@ def get_stack_client_id_secret() -> str:
     return _STACK_CLIENT_ID_SECRET
 
 
-def login() -> str:
+def login(hostname: str) -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)"""
-    if not _STACK_HOSTNAME:
-        raise ValueError("BEHAVIOUR_STACK_HOSTNAME is not set (e.g. example.com)")
     if not _STACK_USERNAME:
         raise ValueError("BEHAVIOUR_STACK_USERNAME is not set")
     if not _STACK_PASSWORD:
@@ -36,7 +33,7 @@ def login() -> str:
     with sync_playwright() as spw:
         session_id_value: str = _run_login_logic_for_cas(
             spw,
-            host=_STACK_HOSTNAME,
+            host=hostname,
             user=_STACK_USERNAME,
             password=_STACK_PASSWORD,
         )
@@ -77,5 +74,5 @@ def _run_login_logic_for_cas(spw: sync_playwright, *, host, user, password) -> s
 
 
 if __name__ == "__main__":
-    session_id = login()
+    session_id = login("fragalysis-alan-behaviour.xchem-dev.diamond.ac.uk")
     print(session_id)
