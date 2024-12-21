@@ -5,7 +5,7 @@ Feature: Empty stack public API operations
   These anonymous users should not see errors, but on an empty stack
   shouldn't yield anything. These features expect the stack user not to be logged in.
 
-  Background: We need a new empty stack
+  Scenario: We need a new empty stack
 
     For all the tests here we need to start with a clean (empty) Fragalysis Stack.
     We do this by ensuring that a new stack exists (creating one if necessary).

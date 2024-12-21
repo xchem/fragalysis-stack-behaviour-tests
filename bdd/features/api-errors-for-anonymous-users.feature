@@ -4,7 +4,7 @@ Feature: Key GET methods need authentication
   require the user to be logged-in. If not logged-in users should receive
   an error response.
 
-  Background: Start with a new empty stack
+  Scenario: Start with a new empty stack
 
     For all the tests here we need to start with a clean (empty) Fragalysis Stack.
     We do this by ensuring that a new stack exists (creating one if necessary).
