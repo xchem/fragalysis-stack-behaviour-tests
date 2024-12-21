@@ -9,7 +9,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 awxkit = "^24.6.1"
-behave = { git = "https://github.com/behave/behave", tag = "v1.2.7.dev6" }
+behave = "1.2.7.dev6"
 playwright = "^1.49.1"
 pytest-playwright = "*"
 pyyaml = "^6.0"
