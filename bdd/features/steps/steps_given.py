@@ -2,7 +2,7 @@ from typing import Dict
 
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
 from behave import given
-from browser_utils import get_stack_client_id_secret
+from browser_utils import get_stack_client_id_secret, login
 
 # To create a stack we need to know the names of templates (in the AWX server)
 # that are responsible for its creation and destruction: -
@@ -56,3 +56,12 @@ def step_impl_00(context, stack_name, image_tag) -> None:
     context.stack_url = get_stack_url(lower_stack_name)
 
     print(f"Created stack '{lower_stack_name}'")
+
+
+@given("I can login to the {stack_name} stack")
+def step_impl_01(context, stack_name) -> None:
+    """Relies on context members: -
+    status_code"""
+    assert context.failed is False
+    context.session_id = login(get_stack_url(stack_name))
+    assert context.session_id

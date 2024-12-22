@@ -6,7 +6,7 @@ _REQUEST_TIMEOUT: int = 8
 
 
 @when("I call {method} on the {stack_name} stack")
-def step_impl_02(context, method, stack_name) -> None:
+def step_impl_00(context, method, stack_name) -> None:
     """Calls an API method on the stack, and sets up the following context members: -
     status_code
     response_count (optional)
