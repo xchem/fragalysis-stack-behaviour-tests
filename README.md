@@ -60,7 +60,7 @@ provide if something's missing.
 
 To run the stack behaviour tests run `behave` from the `bdd` directory: -
 
-    push bdd
+    push behaviour
     behave
 
 >   For further information read `bdd/README.md`

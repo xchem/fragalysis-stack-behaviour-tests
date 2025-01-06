@@ -1,4 +1,4 @@
-# bdd
+# behaviour
 A directory of behaviour tests for the fragalysis stack API using [Gherkin],
 a domain-specific language for describing behaviour that is business-readable.
 _Features_ are defined in the `features` directory and feature _steps_ are defined
