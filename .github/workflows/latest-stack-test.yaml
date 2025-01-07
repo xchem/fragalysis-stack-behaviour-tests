@@ -43,7 +43,7 @@ jobs:
         source .venv/bin/activate
         pre-commit run --all-files
     - name: Behaviour Tests
-      working-directory: ./behave
+      working-directory: ./behaviour
       run: |
         source ../.venv/bin/activate
         behave
