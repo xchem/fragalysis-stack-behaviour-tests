@@ -10,10 +10,12 @@ package-mode = false
 python = "^3.11"
 awxkit = "^24.6.1"
 behave = "1.2.7.dev6"
+boto3 = "^1.35.93"
 playwright = "^1.49.1"
 pytest-playwright = "*"
 pyyaml = "^6.0"
 requests = "^2.32.3"
+requests-toolbelt = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
