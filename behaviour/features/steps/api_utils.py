@@ -6,7 +6,9 @@ import requests
 from requests import Response
 from requests_toolbelt import MultipartEncoder
 
-LANDING_PAGE_METHOD: str = "/viewer/react/landing/"
+# Trailing slashes are important!
+LANDING_PAGE_ENDPOINT: str = "/viewer/react/landing/"
+UPLOAD_ENDPOINT = "/api/upload_target_experiments/"
 
 # this needs to be kept more or less up to date
 USER_AGENT: str = (
@@ -14,36 +16,17 @@ USER_AGENT: str = (
 )
 
 
-def call_api(*, base_url: str, method: str, session_id: Optional[str]) -> Response:
-    """Calls thge GET REST endpoint for an API method using an optional session ID.
+def api_get_request(
+    *, base_url: str, endpoint: str, session_id: Optional[str]
+) -> Response:
+    """Calls the GET REST endpoint using an optional session ID.
     The base url is the root of the apu, i.e. https://example.com. The method is the
     API method to call, i.e. /api/job_config and the session ID is the session ID to
     use for the call."""
 
     with requests.Session() as session:
-
-        session.headers.update(
-            {
-                "User-Agent": USER_AGENT,
-                "Referer": urljoin(base_url, LANDING_PAGE_METHOD),
-                "Referrer-policy": "same-origin",
-            }
-        )
-        session.get(base_url)  # A GET sets any csrftoken
-        if csrftoken := session.cookies.get("csrftoken", None):
-            session.headers.update(
-                {
-                    "X-CSRFToken": csrftoken,
-                    "User-Agent": USER_AGENT,
-                }
-            )
-        if session_id:
-            session.cookies.update(
-                {
-                    "sessionid": session_id,
-                }
-            )
-        return session.get(urljoin(base_url, method))
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.get(urljoin(base_url, endpoint))
 
 
 def upload_target_experiment(
@@ -55,28 +38,11 @@ def upload_target_experiment(
     file_name: str,
 ) -> Response:
     """Uploads target data to the stack using the given TAS and file path."""
+    assert session_id
+
     with requests.Session() as session:
 
-        session.headers.update(
-            {
-                "User-Agent": USER_AGENT,
-                "Referer": urljoin(base_url, LANDING_PAGE_METHOD),
-                "Referrer-policy": "same-origin",
-            }
-        )
-        session.get(base_url)  # A GET sets any csrftoken
-        if csrftoken := session.cookies.get("csrftoken", None):
-            session.headers.update(
-                {
-                    "X-CSRFToken": csrftoken,
-                    "User-Agent": USER_AGENT,
-                }
-            )
-        session.cookies.update(
-            {
-                "sessionid": session_id,
-            }
-        )
+        _prepare_session(session, base_url=base_url, session_id=session_id)
 
         encoder = MultipartEncoder(
             fields={
@@ -89,9 +55,35 @@ def upload_target_experiment(
             }
         )
 
-        url = urljoin(base_url, "/api/upload_target_experiments")
-        print(f"Uploading to {url}...")
-        response = session.post(url, data=encoder)
-        print(f"Uploaded ({response.status_code})")
+        content_type = encoder.content_type
+        session.headers.update({"Content-Type": content_type})
+        url = urljoin(base_url, UPLOAD_ENDPOINT)
+        return session.post(url, data=encoder, stream=True)
 
-        return response
+
+# Local functions
+
+
+def _prepare_session(session, *, base_url: str, session_id: str) -> None:
+    """Prepares a session for use with the stack."""
+    session.headers.update(
+        {
+            "User-Agent": USER_AGENT,
+            "Referer": urljoin(base_url, LANDING_PAGE_ENDPOINT),
+            "Referrer-policy": "same-origin",
+        }
+    )
+    session.get(base_url)  # A GET sets any csrftoken
+    if csrftoken := session.cookies.get("csrftoken", None):
+        session.headers.update(
+            {
+                "X-CSRFToken": csrftoken,
+                "User-Agent": USER_AGENT,
+            }
+        )
+    if session_id:
+        session.cookies.update(
+            {
+                "sessionid": session_id,
+            }
+        )

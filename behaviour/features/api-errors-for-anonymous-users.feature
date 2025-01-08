@@ -12,15 +12,16 @@ Feature: Key GET methods need authentication
     The stack should also be functional, by responding correctly on the landing page.
 
     Given an empty behaviour stack tagged latest
-    Then the stack landing page should return http 200
+    Then the landing page response should be OK
 
   Scenario Template: Some REST GET methods should return 'Not Authorized'
 
     Here we do not login to the stack and therefore, for an un-authenticated user,
     the chosen methods are expected to return 'Not Authorized'.
 
-    When I call <method> on the behaviour stack
-    Then I should get http 403
+    Given I do not login to the behaviour stack
+    When I call <method>
+    Then the response should be FORBIDDEN
 
     Examples:
       | method                            |
@@ -33,8 +34,9 @@ Feature: Key GET methods need authentication
     Here we do not login to the stack and therefore, for an un-authenticated user,
     the chosen methods are expected to return 'Not Allowed'.
 
-    When I call <method> on the behaviour stack
-    Then I should get http 405
+    Given I do not login to the behaviour stack
+    When I call <method>
+    Then the response should be METHOD_NOT_ALLOWED
 
     Examples:
       | method                            |

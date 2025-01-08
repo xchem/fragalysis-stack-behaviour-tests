@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
@@ -16,6 +17,9 @@ _AWX_STACK_WIPE_JOB_TEMPLATE: str = (
 @given("an empty {stack_name} stack tagged {image_tag}")  # pylint: disable=not-callable
 def step_impl(context, stack_name, image_tag) -> None:
     """Wipe any existing stack content and create a new (empty) one.
+    The user can pass in a JSON-encoded set of extra variables
+    via the context.text attribute. This appears as a string.
+
     If successful it sets the following context members: -
     stack_name [e.g. 'behaviour']
     stack_url [e.g. https://example.com]
@@ -42,6 +46,13 @@ def step_impl(context, stack_name, image_tag) -> None:
         "stack_oidc_rp_client_secret": get_stack_client_id_secret(),
     }
 
+    # If the user has passed in extra variables, merge them in.
+    if context.text:
+        print(context.text)
+        step_vars = json.loads(context.text)
+        extra_vars |= step_vars
+        print(f"Using step text as extra variables: {step_vars}")
+
     wipe_jt = _AWX_STACK_WIPE_JOB_TEMPLATE % {
         "username": get_stack_username().capitalize()
     }
@@ -65,9 +76,18 @@ def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefine
     status_code"""
     assert context.failed is False
 
-    context.stack_name = stack_name
+    context.stack_name = stack_name.lower()
     context.session_id = login(get_stack_url(context.stack_name))
     assert context.session_id
+
+
+@given("I do not login to the {stack_name} stack")  # pylint: disable=not-callable
+def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefined
+    """Relies on context members: -
+    status_code"""
+    assert context.failed is False
+
+    context.stack_name = stack_name.lower()
 
 
 @given("I can access the {bucket_name} bucket")  # pylint: disable=not-callable

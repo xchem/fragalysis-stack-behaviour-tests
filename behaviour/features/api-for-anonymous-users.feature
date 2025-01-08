@@ -13,7 +13,7 @@ Feature: Empty stack public API operations
     The stack should also be functional, by responding correctly on the landing page.
 
     Given an empty behaviour stack tagged latest
-    Then the stack landing page should return http 200
+    Then the landing page response should be OK
 
   Scenario Template: Check the main public API methods
 
@@ -22,8 +22,9 @@ Feature: Empty stack public API operations
     An empty stack has no data so everything tested here should return
     successfully and with an empty list of objects.
 
-    When I call <method> on the behaviour stack
-    Then I should get http 200
+    Given I do not login to the behaviour stack
+    When I call <method>
+    Then the response should be OK
     And the length of the returned list should be 0
 
     Examples:
@@ -78,6 +79,7 @@ Feature: Empty stack public API operations
     A small number of methods return objects, even on an empty stack.
     Here we check that an unauthenticated user sees this 'public' data.
 
-    When I call /api/tag_category on the behaviour stack
-    Then I should get http 200
+    Given I do not login to the behaviour stack
+    When I call /api/tag_category
+    Then the response should be OK
     And the length of the returned list should be 9
