@@ -46,6 +46,7 @@ jobs:
       working-directory: ./behaviour
       run: |
         source ../.venv/bin/activate
+        playwright install
         behave
       env:
         CONTROLLER_HOST: https://${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}

@@ -9,7 +9,7 @@
 
 [![latest stack test](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml/badge.svg)](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml)
 
-A repository of (experimental) Python-based end-2-end behaviour tests using [playwrite]
+A repository of (experimental) Python-based end-2-end behaviour tests using [playwright]
 for UI-based testing of the Fragalysis Stack, and [behave] for [cucumber]-like testing
 of the API.
 
@@ -56,9 +56,13 @@ Many tests rely on sensitive information that's made available through various
 `BEHAVIOUR_*` environment variables. The tests _should_ tell you what you need to
 provide if something's missing.
 
+As a one-time setup, install the playwright dependencies: -
+
+    playwright install
+
 ## Running the behaviour tests
 
-To run the stack behaviour tests run `behave` from the `bdd` directory: -
+To run the stack behaviour tests run `behave` from the `behaviour` directory: -
 
     push behaviour
     behave
@@ -67,11 +71,7 @@ To run the stack behaviour tests run `behave` from the `bdd` directory: -
 
 ## Running the UI tests
 
-As a one-time setup, install the playwright dependencies: -
-
-    playwright install
-
-Then run the tests from the project root or `playwrite` directory using pytest: -
+Run the tests from the project root or `playwright` directory using pytest: -
 
     pytest
 
@@ -82,6 +82,6 @@ Then run the tests from the project root or `playwrite` directory using pytest: 
 [commitizen]: https://commitizen-tools.github.io/commitizen/
 [conventional commit]: https://www.conventionalcommits.org/en/v1.0.0/
 [cucumber]: https://cucumber.io/
-[playwrite]: https://playwright.dev/python/docs/intro
+[playwright]: https://playwright.dev/python/docs/intro
 [pre-commit]: https://pre-commit.com
 [poetry]: https://python-poetry.org/
