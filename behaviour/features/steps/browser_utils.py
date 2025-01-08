@@ -5,6 +5,7 @@ from html import unescape
 from typing import Optional
 
 from awx_utils import get_stack_url
+
 from playwright.sync_api import expect, sync_playwright
 
 # Fragalysis Stack hostname (i.e. example.com) and credentials for a CAS user
