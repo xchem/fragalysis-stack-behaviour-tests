@@ -17,9 +17,15 @@ _REQUEST_POLL_PERIOD_S: int = 4
 def step_impl(context, status_code_name) -> None:
     """Just make sure the stack is up"""
     assert context.failed is False
+    assert hasattr(context, "stack_url")
+
     resp = requests.get(context.stack_url, timeout=_REQUEST_TIMEOUT)
     assert resp
-    assert resp.status_code == http.HTTPStatus[status_code_name].value
+
+    expected_code = http.HTTPStatus[status_code_name].value
+    if resp.status_code != expected_code:
+        print(f"Expected status code {expected_code}, got {resp.status_code}")
+        assert resp.status_code == expected_code
 
 
 @then(  # pylint: disable=not-callable
@@ -27,18 +33,28 @@ def step_impl(context, status_code_name) -> None:
 )
 def step_impl(context, count) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
-    response_count"""
+    - response_count"""
     assert context.failed is False
-    assert context.response_count == count
+    assert hasattr(context, "response_count")
+
+    if context.response_count != count:
+        print(f"Expected {count} responses, got {context.response_count}")
+        assert context.response_count == count
 
 
 @then("the response should be {status_code_name}")  # pylint: disable=not-callable
 def step_impl(context, status_code_name) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
-    status_code"""
+    - status_code"""
     assert context.failed is False
-    print(f"Have status code {http.HTTPStatus(context.status_code).name}")
-    assert context.status_code == http.HTTPStatus[status_code_name].value
+    assert hasattr(context, "status_code")
+
+    expected_status_code = http.HTTPStatus[status_code_name].value
+    if context.status_code != expected_status_code:
+        print(
+            f"Expected status code {expected_status_code} ({status_code_name}), got {context.status_code}"
+        )
+        assert context.status_code == expected_status_code
 
 
 @then("I should get a Task status endpoint")  # pylint: disable=not-callable
@@ -60,9 +76,9 @@ def step_impl(context) -> None:  # pylint: disable=function-redefined
     context.task_status_url = task_status_url
 
 
-@then(
+@then(  # pylint: disable=not-callable
     "the Task status should have a value of {status} within {timeout_m:d} minutes"
-)  # pylint: disable=not-callable
+)
 def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
     - session_id
@@ -85,12 +101,13 @@ def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-r
     data: Optional[Dict[str, Any]] = None
     now: datetime = start_time
     while not done:
+
         # Get the task status.
         # The response normally contains the following properties: -
-        # - started
-        # - finished
-        # - status
-        # - messages
+        # - started (boolean)
+        # - finished (boolean)
+        # - status (i.e. RUNNING, SUCCESS)
+        # - messages (a list of strings)
         resp = api_get_request(
             base_url=context.stack_url,
             endpoint=context.task_status_url,

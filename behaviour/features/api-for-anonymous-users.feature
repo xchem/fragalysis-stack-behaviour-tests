@@ -18,16 +18,16 @@ Feature: Empty stack public API operations
   Scenario Template: Check the main public API methods
 
     These tests, all starting with an empty stack, verify that the selected
-    API methods respond without error to any user who has not logged in.
+    API methods respond without error to a GET for any user who has not logged in.
     An empty stack has no data so everything tested here should return
     successfully and with an empty list of objects.
 
     Given I do not login to the behaviour stack
     When I call <method>
-    Then the response should be OK
+    Then the API response should be OK
     And the length of the returned list should be 0
 
-    Examples:
+    Examples: Public GET methods
       | method                          |
       | /api/action-type                |
       | /api/canon_sites                |
@@ -81,5 +81,5 @@ Feature: Empty stack public API operations
 
     Given I do not login to the behaviour stack
     When I call /api/tag_category
-    Then the response should be OK
+    Then the API response should be OK
     And the length of the returned list should be 9

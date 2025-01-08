@@ -17,13 +17,13 @@ Feature: Key GET methods need authentication
   Scenario Template: Some REST GET methods should return 'Not Authorized'
 
     Here we do not login to the stack and therefore, for an un-authenticated user,
-    the chosen methods are expected to return 'Not Authorized'.
+    the chosen methods are expected to return 'Not Authorized' for a GET.
 
     Given I do not login to the behaviour stack
     When I call <method>
-    Then the response should be FORBIDDEN
+    Then the API response should be FORBIDDEN
 
-    Examples:
+    Examples: Restricted GET endpoints
       | method                            |
       | /api/job_config                   |
       | /api/compound-identifier-types    |
@@ -36,9 +36,9 @@ Feature: Key GET methods need authentication
 
     Given I do not login to the behaviour stack
     When I call <method>
-    Then the response should be METHOD_NOT_ALLOWED
+    Then the API response should be METHOD_NOT_ALLOWED
 
-    Examples:
+    Examples: Endpoints without a GET
       | method                            |
       | /api/metadata_upload              |
       | /api/download_target_experiments  |

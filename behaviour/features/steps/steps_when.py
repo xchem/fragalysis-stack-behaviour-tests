@@ -30,7 +30,9 @@ def step_impl(context, method) -> None:
         context.response_count = resp.json().get("count")
 
 
-@when("I get the {ext} encoded file {bucket_object}")  # pylint: disable=not-callable
+@when(  # pylint: disable=not-callable
+    "I get the {ext} encoded file {bucket_object} from the bucket"
+)
 def step_impl(  # pylint: disable=function-redefined
     context, ext, bucket_object
 ) -> None:
@@ -57,7 +59,7 @@ def step_impl(  # pylint: disable=function-redefined
     context.target_file = target_file
 
 
-@when("I load it using target access string {tas}")  # pylint: disable=not-callable
+@when("I load it against target access string {tas}")  # pylint: disable=not-callable
 def step_impl(context, tas) -> None:  # pylint: disable=function-redefined
     """Loads a previously downloaded file into the stack using the given TAS.
     We set the following context members: -
