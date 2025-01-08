@@ -21,7 +21,6 @@ Feature: Verify legitimate public Targets can be loaded into the stack
       """
     Then the landing page response should be OK
 
-  @wip
   Scenario Template: Load public targets
 
     Load target files (located in an S3 bucket) into the stack.
