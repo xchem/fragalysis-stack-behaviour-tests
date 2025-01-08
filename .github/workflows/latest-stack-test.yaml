@@ -11,10 +11,13 @@ on:
 jobs:
   test-alan:
 
+    # We have to avoid Python 3.12 (3.12.8) as the GitHub Action
+    # always generates an argparse error when we try and run
+    # the awx command from within the 'behave' tests.
     strategy:
       matrix:
         python-version:
-        - '3.12'
+        - '3.11'
 
     runs-on: ubuntu-latest
     environment: behaviour-stack-alan
