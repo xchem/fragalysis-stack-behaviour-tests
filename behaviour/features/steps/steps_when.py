@@ -6,6 +6,7 @@ from awx_utils import get_stack_url
 from behave import when
 from s3_utils import get_object
 
+_DOWNLOAD_PATH = "."
 _REQUEST_TIMEOUT: int = 8
 
 
@@ -41,7 +42,7 @@ def step_impl(  # pylint: disable=function-redefined
     assert hasattr(context, "bucket_name")
 
     target_file = f"{bucket_object}.{ext.lower()}"
-    target_path = f"/tmp/{target_file}"
+    target_path = f"{_DOWNLOAD_PATH}/{target_file}"
 
     # Do nothing if the destination file exists
     if os.path.exists(target_path) and os.path.isfile(target_path):
@@ -50,7 +51,7 @@ def step_impl(  # pylint: disable=function-redefined
         return
 
     print(f"Getting object ({bucket_object}) [{ext}]...")
-    get_object(context.bucket_name, target_file, "/tmp")
+    get_object(context.bucket_name, target_file, _DOWNLOAD_PATH)
     print("Got it")
 
     context.target_file = target_file
@@ -73,7 +74,7 @@ def step_impl(context, tas) -> None:  # pylint: disable=function-redefined
         base_url=stack_url,
         session_id=context.session_id,
         tas=tas,
-        file_directory="/tmp",
+        file_directory=_DOWNLOAD_PATH,
         file_name=context.target_file,
     )
     print(f"Loaded ({resp.status_code})")
