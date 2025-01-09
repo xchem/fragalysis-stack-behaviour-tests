@@ -17,7 +17,7 @@ Feature: Verify good Targets can be loaded against the public TAS
     The variables it is expected to define will be passed to the
     corresponding AWX Job Template when it's launched.
 
-    Given an empty behaviour stack tagged latest
+    Given an empty stack using the image tag latest
     Then the landing page response should be OK
 
   Scenario Template: Load public targets
@@ -28,19 +28,19 @@ Feature: Verify good Targets can be loaded against the public TAS
     We introduce a timeout to allow for the upload to complete,
     which is typically twice the expected processing time (after upload).
 
-    Given I can login to the behaviour stack
+    Given I can login
     And I can access the fragalysis-stack-xchem-data bucket
     When I get the TGZ encoded file <tgz> from the bucket
     And load it against target access string lb18145-1
-    Then the API response should be ACCEPTED
-    And the API response should contain a task status endpoint
-    And the task status should have a value of SUCCESS within <timeout> minutes
-    When I do a GET at /api/target_experiment_uploads
+    Then the response should be ACCEPTED
+    And the response should contain a task status endpoint
+    And the task status should have a value of SUCCESS within <upload timeout> minutes
+    When I do a GET request at /api/target_experiment_uploads
     Then the length of the list in the response should be 1
-    When I do a GET at /api/targets?title=<target>
+    When I do a GET request at /api/targets?title=<target>
     Then the length of the list in the response should be 1
 
-    Examples: Public targets
-    | tgz                                 | target    | timeout |
-    | lb32627-66_v2.2_upload_1_2024-12_09 | A71EV2A   | 7       |
-    | lb32633-6_v2.2_upload_1_2024-11-22  | CHIKV_Mac | 16      |
+    Examples: Experiment files and Targets
+    | tgz                                 | target    | upload timeout |
+    | lb32627-66_v2.2_upload_1_2024-12_09 | A71EV2A   | 7  |
+    | lb32633-6_v2.2_upload_1_2024-11-22  | CHIKV_Mac | 16 |

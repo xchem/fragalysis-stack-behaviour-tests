@@ -8,7 +8,9 @@ from awx_utils import get_stack_url
 
 from playwright.sync_api import expect, sync_playwright
 
-# Fragalysis Stack hostname (i.e. example.com) and credentials for a CAS user
+# Fragalysis Stack name (used to form the stack's URL), and credentials for a CAS user.
+# The username is also used to form the stack's URL by the AWX Job Template.
+_STACK_NAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_NAME")
 _STACK_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_USERNAME")
 _STACK_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_STACK_PASSWORD")
 _STACK_CLIENT_ID_SECRET: Optional[str] = os.environ.get(
@@ -24,6 +26,13 @@ def get_stack_client_id_secret() -> str:
     if not _STACK_CLIENT_ID_SECRET:
         raise ValueError("BEHAVIOUR_STACK_CLIENT_ID_SECRET is not set")
     return _STACK_CLIENT_ID_SECRET
+
+
+def get_stack_name() -> str:
+    """Returns the configured stack name (lower case)"""
+    if not _STACK_NAME:
+        raise ValueError("BEHAVIOUR_STACK_NAME is not set")
+    return _STACK_NAME.lower()
 
 
 def login(host_url: str) -> str:

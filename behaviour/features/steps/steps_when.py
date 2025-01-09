@@ -10,7 +10,7 @@ _DOWNLOAD_PATH = "."
 _REQUEST_TIMEOUT: int = 8
 
 
-@when("I do a {method} at {endpoint}")  # pylint: disable=not-callable
+@when("I do a {method} request at {endpoint}")  # pylint: disable=not-callable
 def step_impl(context, method, endpoint) -> None:
     """Makes a REST request on an endpoint. Relies on context members: -
     - stack_name

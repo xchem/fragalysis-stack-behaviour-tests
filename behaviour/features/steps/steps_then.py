@@ -43,7 +43,7 @@ def step_impl(context, count) -> None:  # pylint: disable=function-redefined
         assert context.response_count == count
 
 
-@then("the API response should be {status_code_name}")  # pylint: disable=not-callable
+@then("the response should be {status_code_name}")  # pylint: disable=not-callable
 def step_impl(context, status_code_name) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
     - status_code"""
@@ -59,7 +59,7 @@ def step_impl(context, status_code_name) -> None:  # pylint: disable=function-re
 
 
 @then(  # pylint: disable=not-callable
-    "the API response should contain a task status endpoint"
+    "the response should contain a task status endpoint"
 )
 def step_impl(context) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -

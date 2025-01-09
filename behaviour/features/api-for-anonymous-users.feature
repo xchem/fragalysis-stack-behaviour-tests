@@ -12,7 +12,7 @@ Feature: Empty stack public API operations
     Stacks have a 'name', and we need specify an image tag like 'latest'.
     The stack should also be functional, by responding correctly on the landing page.
 
-    Given an empty behaviour stack tagged latest
+    Given an empty stack using the image tag latest
     Then the landing page response should be OK
 
   Scenario Template: Check the main public API methods
@@ -22,9 +22,9 @@ Feature: Empty stack public API operations
     An empty stack has no data so everything tested here should return
     successfully and with an empty list of objects.
 
-    Given I do not login to the behaviour stack
-    When I do a GET at <method>
-    Then the API response should be OK
+    Given I do not login
+    When I do a GET request at <method>
+    Then the response should be OK
     And the length of the list in the response should be 0
 
     Examples: Public GET methods
@@ -79,7 +79,7 @@ Feature: Empty stack public API operations
     A small number of methods return objects, even on an empty stack.
     Here we check that an unauthenticated user sees this 'public' data.
 
-    Given I do not login to the behaviour stack
-    When I do a GET at /api/tag_category
-    Then the API response should be OK
+    Given I do not login
+    When I do a GET request at /api/tag_category
+    Then the response should be OK
     And the length of the list in the response should be 9
