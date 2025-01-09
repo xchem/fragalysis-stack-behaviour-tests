@@ -7,6 +7,7 @@ on:
     - main
   schedule:
   - cron: '35 6 * * *'
+  workflow_dispatch:
 
 jobs:
   test-alan:
@@ -49,8 +50,8 @@ jobs:
         pre-commit run --all-files
 
     # Dry-run the behaviour tests.
-    # This just checks the tests and steps would run
-    # and crucially checks for missing steps.
+    # This checks that the tests and steps are syntactically correct,
+    # crucially checking for missing steps.
     #
     # We do not run 'Work in Progress' (WIP) tests
     # (i.e. tests tagged with @wip).
@@ -60,7 +61,6 @@ jobs:
         source ../.venv/bin/activate
         behave --tags=-wip --dry-run
 
-    # Run the actual behaviour tests now.
     # We do not run 'Work in Progress' (WIP) tests
     # (i.e. tests tagged with @wip).
     - name: Behaviour Tests
@@ -70,11 +70,12 @@ jobs:
         playwright install
         behave --tags=-wip
       env:
-        CONTROLLER_HOST: https://${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
-        CONTROLLER_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
-        CONTROLLER_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
+        BEHAVIOUR_CONTROLLER_HOST: https://${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
+        BEHAVIOUR_CONTROLLER_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
+        BEHAVIOUR_CONTROLLER_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
         BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
         BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
         BEHAVIOUR_STACK_CLIENT_ID_SECRET: ${{ secrets.BEHAVIOUR_STACK_CLIENT_ID_SECRET }}
         BEHAVIOUR_AWS_ACCESS_KEY_ID: ${{ secrets.BEHAVIOUR_AWS_ACCESS_KEY_ID }}
         BEHAVIOUR_AWS_SECRET_ACCESS_KEY: ${{ secrets.BEHAVIOUR_AWS_SECRET_ACCESS_KEY }}
+        BEHAVIOUR_AWS_ENDPOINT_URL: ${{ secrets.BEHAVIOUR_AWS_ENDPOINT_URL }}

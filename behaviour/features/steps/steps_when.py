@@ -64,7 +64,7 @@ def step_impl(  # pylint: disable=function-redefined
     context.target_file = target_file
 
 
-@when("I load it against target access string {tas}")  # pylint: disable=not-callable
+@when("load it against target access string {tas}")  # pylint: disable=not-callable
 def step_impl(context, tas) -> None:  # pylint: disable=function-redefined
     """Loads a previously downloaded file into the stack using the given TAS.
     Relies on context members: -

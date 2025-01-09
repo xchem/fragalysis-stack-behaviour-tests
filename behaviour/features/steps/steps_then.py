@@ -30,7 +30,7 @@ def step_impl(context, status_code_name) -> None:
 
 
 @then(  # pylint: disable=not-callable
-    "the length of the returned list should be {count:d}"
+    "the length of the list in the response should be {count:d}"
 )
 def step_impl(context, count) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
@@ -58,7 +58,9 @@ def step_impl(context, status_code_name) -> None:  # pylint: disable=function-re
         assert context.status_code == expected_status_code
 
 
-@then("I should get a Task status endpoint")  # pylint: disable=not-callable
+@then(  # pylint: disable=not-callable
+    "the API response should contain a task status endpoint"
+)
 def step_impl(context) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
     - response
@@ -78,7 +80,7 @@ def step_impl(context) -> None:  # pylint: disable=function-redefined
 
 
 @then(  # pylint: disable=not-callable
-    "the Task status should have a value of {status} within {timeout_m:d} minutes"
+    "the task status should have a value of {status} within {timeout_m:d} minutes"
 )
 def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -

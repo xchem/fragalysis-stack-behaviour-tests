@@ -16,7 +16,7 @@ of the API.
 If you want any login/authentication logic to work the Fragalysis Stack that's
 under test must be known to the authentication system (Keycloak) using a suitable
 keycloak client ID and secret (which must be provided in the corresponding
-`BEHAVIOUR_*` values).
+`BEHAVIOUR_` values).
 
 ## Contributing
 
@@ -53,7 +53,7 @@ Create a suitable Python environment: -
     poetry install
 
 Many tests rely on sensitive information that's made available through various
-`BEHAVIOUR_*` environment variables. The tests _should_ tell you what you need to
+`BEHAVIOUR_` environment variables. The tests _should_ tell you what you need to
 provide if something's missing.
 
 As a one-time setup, install the playwright dependencies: -
