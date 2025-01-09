@@ -46,12 +46,7 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
 
-    cmd = (
-        "awx job_templates launch --wait"
-        + " --conf.host https://{_AWX_HOST}"
-        + " --conf.username {_AWX_USERNAME}"
-        + " --conf.password {_AWX_PASSWORD}"
-    )
+    cmd = "awx job_templates launch --wait"
 
     # Put any extra_vars into a local temporary YAML file
     fp = None
@@ -65,8 +60,16 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     cmd += f' "{template}"'
 
     # Split the command into a sequence for subprocess.run()
+    # and inject the required environment variables.
+
     split_cmd = shlex.split(cmd)
-    cmd_process = subprocess.run(split_cmd, capture_output=True, check=False)
+
+    env = os.environ.copy()
+    env["CONTROLLER_HOST"] = f"https://{_AWX_HOST}"
+    env["CONTROLLER_USERNAME"] = _AWX_USERNAME
+    env["CONTROLLER_PASSWORD"] = _AWX_PASSWORD
+
+    cmd_process = subprocess.run(split_cmd, capture_output=True, check=False, env=env)
     if cmd_process.returncode != 0:
         print(f"Error launching AWX JobTemplate '{template}'")
         print(f"process.returncode: {cmd_process.returncode}")
