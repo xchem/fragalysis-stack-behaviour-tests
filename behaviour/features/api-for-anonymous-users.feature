@@ -25,7 +25,7 @@ Feature: Empty stack public API operations
     Given I do not login to the behaviour stack
     When I do a GET at <method>
     Then the API response should be OK
-    And the length of the returned list should be 0
+    And the length of the list in the response should be 0
 
     Examples: Public GET methods
       | method                          |
@@ -82,4 +82,4 @@ Feature: Empty stack public API operations
     Given I do not login to the behaviour stack
     When I do a GET at /api/tag_category
     Then the API response should be OK
-    And the length of the returned list should be 9
+    And the length of the list in the response should be 9
