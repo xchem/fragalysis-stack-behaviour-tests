@@ -48,18 +48,27 @@ jobs:
         source .venv/bin/activate
         pre-commit run --all-files
 
+    # Dry-run the behaviour tests.
+    # This just checks the tests and steps would run
+    # and crucially checks for missing steps.
+    #
+    # We do not run 'Work in Progress' (WIP) tests
+    # (i.e. tests tagged with @wip).
     - name: Behaviour Tests (Dry Run)
       working-directory: ./behaviour
       run: |
         source ../.venv/bin/activate
-        behave --dry-run
+        behave --tags=-wip --dry-run
 
+    # Run the actual behaviour tests now.
+    # We do not run 'Work in Progress' (WIP) tests
+    # (i.e. tests tagged with @wip).
     - name: Behaviour Tests
       working-directory: ./behaviour
       run: |
         source ../.venv/bin/activate
         playwright install
-        behave
+        behave --tags=-wip
       env:
         CONTROLLER_HOST: https://${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
         CONTROLLER_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
