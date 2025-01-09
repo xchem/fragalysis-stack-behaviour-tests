@@ -37,7 +37,7 @@ def step_impl(context, stack_name, image_tag) -> None:
     #  "fragalysis-alan-behaviour-xchem-dev"
 
     stack_oidc_rp_client_id: str = (
-        f"fragalysis-{get_stack_username()}-{lower_stack_name}-xchem-dev"
+        f"fragalysis-{get_stack_username().lower()}-{lower_stack_name}-xchem-dev"
     )
 
     extra_vars: Dict[str, str] = {
