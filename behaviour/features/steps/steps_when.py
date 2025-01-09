@@ -10,9 +10,11 @@ _DOWNLOAD_PATH = "."
 _REQUEST_TIMEOUT: int = 8
 
 
-@when("I call {method}")  # pylint: disable=not-callable
-def step_impl(context, method) -> None:
-    """Calls an API method on the stack, and sets up the following context members: -
+@when("I do a {method} at {endpoint}")  # pylint: disable=not-callable
+def step_impl(context, method, endpoint) -> None:
+    """Makes a REST request on an endpoint. Relies on context members: -
+    - stack_name
+    Sets the following context members: -
     - stack_url
     - status_code
     - response
@@ -22,8 +24,11 @@ def step_impl(context, method) -> None:
     assert hasattr(context, "stack_name")
 
     context.stack_url = get_stack_url(context.stack_name)
-    print(context.stack_url)
-    resp = requests.get(context.stack_url + method, timeout=_REQUEST_TIMEOUT)
+    print(f"stack_url={context.stack_url}")
+
+    resp = requests.request(
+        method, context.stack_url + endpoint, timeout=_REQUEST_TIMEOUT
+    )
     context.response = resp
     context.status_code = resp.status_code
     if isinstance(resp.json(), dict) and "count" in resp.json():
@@ -36,10 +41,10 @@ def step_impl(context, method) -> None:
 def step_impl(  # pylint: disable=function-redefined
     context, ext, bucket_object
 ) -> None:
-    """Download a file (assumes we have a bucket).
-    We append ".{ext}" to the bucket_object.
-    We set the following context members: -
-    - target_file"""
+    """Download a file (assumes we have a bucket) and relies on context members: -
+    - bucket_name
+    We append ".{ext}" to the bucket_object and set the following context members: -
+    - target_file (i.e. 'file.tgz')"""
     assert context.failed is False
     assert hasattr(context, "bucket_name")
 
@@ -62,6 +67,9 @@ def step_impl(  # pylint: disable=function-redefined
 @when("I load it against target access string {tas}")  # pylint: disable=not-callable
 def step_impl(context, tas) -> None:  # pylint: disable=function-redefined
     """Loads a previously downloaded file into the stack using the given TAS.
+    Relies on context members: -
+    - target_file
+    - session_id
     We set the following context members: -
     - response
     - status_code

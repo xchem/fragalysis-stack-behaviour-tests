@@ -21,9 +21,10 @@ def step_impl(context, stack_name, image_tag) -> None:
     via the context.text attribute. This appears as a string.
 
     If successful it sets the following context members: -
-    stack_name [e.g. 'behaviour']
-    stack_url [e.g. https://example.com]
+    - stack_name (e.g. 'behaviour')
+    - stack_url (e.g. https://example.com)
     """
+    assert context.failed is False
 
     lower_stack_name = stack_name.lower()
     print(f"Creating stack '{lower_stack_name}'...")
@@ -72,8 +73,9 @@ def step_impl(context, stack_name, image_tag) -> None:
 
 @given("I can login to the {stack_name} stack")  # pylint: disable=not-callable
 def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefined
-    """Relies on context members: -
-    status_code"""
+    """Sets the context members: -
+    - stack_name
+    - session_id"""
     assert context.failed is False
 
     context.stack_name = stack_name.lower()
@@ -83,8 +85,8 @@ def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefine
 
 @given("I do not login to the {stack_name} stack")  # pylint: disable=not-callable
 def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefined
-    """Relies on context members: -
-    status_code"""
+    """Sets the context members: -
+    - stack_name"""
     assert context.failed is False
 
     context.stack_name = stack_name.lower()
@@ -92,7 +94,9 @@ def step_impl(context, stack_name) -> None:  # pylint: disable=function-redefine
 
 @given("I can access the {bucket_name} bucket")  # pylint: disable=not-callable
 def step_impl(context, bucket_name) -> None:  # pylint: disable=function-redefined
-    """Just make suer we can access the bucket"""
+    """Just make sure we can access the bucket and ets the context members: -
+    - bucket_name"""
     assert context.failed is False
+
     check_bucket(bucket_name)
     context.bucket_name = bucket_name

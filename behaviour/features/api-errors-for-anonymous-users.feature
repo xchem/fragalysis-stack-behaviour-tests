@@ -20,7 +20,7 @@ Feature: Key GET methods need authentication
     the chosen methods are expected to return 'Not Authorized' for a GET.
 
     Given I do not login to the behaviour stack
-    When I call <method>
+    When I do a GET at <method>
     Then the API response should be FORBIDDEN
 
     Examples: Restricted GET endpoints
@@ -35,7 +35,7 @@ Feature: Key GET methods need authentication
     the chosen methods are expected to return 'Not Allowed'.
 
     Given I do not login to the behaviour stack
-    When I call <method>
+    When I do a GET at <method>
     Then the API response should be METHOD_NOT_ALLOWED
 
     Examples: Endpoints without a GET

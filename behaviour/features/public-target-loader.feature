@@ -22,7 +22,6 @@ Feature: Verify legitimate Targets can be loaded against the public TAS
       """
     Then the landing page response should be OK
 
-  @wip
   Scenario Template: Load public targets
 
     Load target files (located in an S3 bucket) into the stack.
@@ -38,9 +37,9 @@ Feature: Verify legitimate Targets can be loaded against the public TAS
     Then the API response should be ACCEPTED
     And I should get a Task status endpoint
     And the Task status should have a value of SUCCESS within <timeout> minutes
-    When I call /api/target_experiment_uploads
+    When I do a GET at /api/target_experiment_uploads
     Then the length of the returned list should be 1
-    When I call /api/targets?title=<target>
+    When I do a GET at /api/targets?title=<target>
     Then the length of the returned list should be 1
 
     Examples: Public targets

@@ -15,7 +15,8 @@ _REQUEST_POLL_PERIOD_S: int = 4
     "the landing page response should be {status_code_name}"
 )
 def step_impl(context, status_code_name) -> None:
-    """Just make sure the stack is up"""
+    """Just make sure the stack is up, and relies on context members: -
+    - stack_url"""
     assert context.failed is False
     assert hasattr(context, "stack_url")
 
@@ -61,19 +62,19 @@ def step_impl(context, status_code_name) -> None:  # pylint: disable=function-re
 def step_impl(context) -> None:  # pylint: disable=function-redefined
     """Relies on context members: -
     - response
-    And creates the following context properties: -
-    - task_status_url
+    And Sets the context properties: -
+    - task_status_endpoint
     """
     assert context.failed is False
     assert hasattr(context, "response")
 
     data: Dict[str, Any] = context.response.json()
     assert "task_status_url" in data
-    task_status_url: str = data["task_status_url"]
-    assert task_status_url.startswith("/viewer/task_status/")
+    task_status_endpoint: str = data["task_status_url"]
+    assert task_status_endpoint.startswith("/viewer/task_status/")
 
-    print(f"Got task status URL ({task_status_url})")
-    context.task_status_url = task_status_url
+    print(f"Got task status URL ({task_status_endpoint})")
+    context.task_status_endpoint = task_status_endpoint
 
 
 @then(  # pylint: disable=not-callable
@@ -83,19 +84,19 @@ def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-r
     """Relies on context members: -
     - session_id
     - stack_url
-    - task_status_url
+    - task_status_endpoint
     """
     assert timeout_m > 0
 
     assert context.failed is False
     assert hasattr(context, "session_id")
     assert hasattr(context, "stack_url")
-    assert hasattr(context, "task_status_url")
+    assert hasattr(context, "task_status_endpoint")
 
     start_time = datetime.now()
     timeout_period = timedelta(minutes=timeout_m)
 
-    print(f"Waiting for task at {context.task_status_url} [{start_time}]...")
+    print(f"Waiting for task at {context.task_status_endpoint} [{start_time}]...")
 
     done: bool = False
     data: Optional[Dict[str, Any]] = None
@@ -110,7 +111,7 @@ def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-r
         # - messages (a list of strings)
         resp = api_get_request(
             base_url=context.stack_url,
-            endpoint=context.task_status_url,
+            endpoint=context.task_status_endpoint,
             session_id=context.session_id,
         )
         assert resp.status_code == http.HTTPStatus["OK"].value

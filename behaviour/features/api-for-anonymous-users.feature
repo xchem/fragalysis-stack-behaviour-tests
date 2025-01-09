@@ -23,7 +23,7 @@ Feature: Empty stack public API operations
     successfully and with an empty list of objects.
 
     Given I do not login to the behaviour stack
-    When I call <method>
+    When I do a GET at <method>
     Then the API response should be OK
     And the length of the returned list should be 0
 
@@ -80,6 +80,6 @@ Feature: Empty stack public API operations
     Here we check that an unauthenticated user sees this 'public' data.
 
     Given I do not login to the behaviour stack
-    When I call /api/tag_category
+    When I do a GET at /api/tag_category
     Then the API response should be OK
     And the length of the returned list should be 9

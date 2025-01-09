@@ -18,9 +18,11 @@ There is a `.behaverc` that is used to alter its default behaviour.
     by adding the `--no-capture` command-line option. if you don't do this
     you'll only see the output if the test fails.
 
->   You can avoid stopping on the first error by adding `--no-stop`.
+>   You can avoid stopping on the first error by adding `--no-stop`
 
->   To see a test summary you could add `--summary`.
+>   To see a test summary you could add `--summary`
+
+>   To see a catalogue of all the available steps add `--steps-catalog`
 
 ## Step definition design
 Feature steps are located in the standard `features/steps` directory. Direct
