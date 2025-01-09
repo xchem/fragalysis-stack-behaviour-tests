@@ -4,27 +4,26 @@ relying on AWS S3 environment variables with a BEHAVIOUR_ prefix."""
 import os
 
 import boto3
-
-# Required config
-# The key must provide read access to the chosen bucket
-_ACCESS_KEY_ID = os.environ.get("BEHAVIOUR_AWS_ACCESS_KEY_ID")
-_SECRET_ACCESS_KEY = os.environ.get("BEHAVIOUR_AWS_SECRET_ACCESS_KEY")
-# Optional config
-_DEFAULT_REGION = os.environ.get("BEHAVIOUR_AWS_DEFAULT_REGION")
-_ENDPOINT_URL = os.environ.get("BEHAVIOUR_AWS_ENDPOINT_URL")
+from config import (
+    S3_ACCESS_KEY_ID,
+    S3_DEFAULT_REGION,
+    S3_ENDPOINT_URL,
+    S3_SECRET_ACCESS_KEY,
+    get_env_name,
+)
 
 
 def check_bucket(bucket: str) -> None:
     """Checks we can access the bucket (we simply check its location)"""
     _check_env()
 
-    print(f"Creating S3 client (url={_ENDPOINT_URL})...")
+    print(f"Creating S3 client (url={S3_ENDPOINT_URL})...")
     s3 = boto3.client(
         "s3",
-        region_name=_DEFAULT_REGION,
-        aws_access_key_id=_ACCESS_KEY_ID,
-        aws_secret_access_key=_SECRET_ACCESS_KEY,
-        endpoint_url=_ENDPOINT_URL,
+        region_name=S3_DEFAULT_REGION,
+        aws_access_key_id=S3_ACCESS_KEY_ID,
+        aws_secret_access_key=S3_SECRET_ACCESS_KEY,
+        endpoint_url=S3_ENDPOINT_URL,
     )
 
     print("Checking bucket location...")
@@ -37,13 +36,13 @@ def get_object(bucket: str, key: str, destination_dir: str = ".") -> None:
     """Get an object from an S3 bucket, placing it in the destination directory"""
     _check_env()
 
-    print(f"Creating S3 client (url={_ENDPOINT_URL})...")
+    print(f"Creating S3 client (url={S3_ENDPOINT_URL})...")
     s3 = boto3.client(
         "s3",
-        region_name=_DEFAULT_REGION,
-        aws_access_key_id=_ACCESS_KEY_ID,
-        aws_secret_access_key=_SECRET_ACCESS_KEY,
-        endpoint_url=_ENDPOINT_URL,
+        region_name=S3_DEFAULT_REGION,
+        aws_access_key_id=S3_ACCESS_KEY_ID,
+        aws_secret_access_key=S3_SECRET_ACCESS_KEY,
+        endpoint_url=S3_ENDPOINT_URL,
     )
 
     print(f"Downloading {bucket}/{key} to {destination_dir}...")
@@ -58,10 +57,10 @@ def get_object(bucket: str, key: str, destination_dir: str = ".") -> None:
 
 def _check_env() -> None:
     """Check that required environment variables are set"""
-    if _SECRET_ACCESS_KEY is None or _SECRET_ACCESS_KEY == "":
-        raise ValueError("BEHAVIOUR_AWS_SECRET_ACCESS_KEY is not set")
-    if _ACCESS_KEY_ID is None or _ACCESS_KEY_ID == "":
-        raise ValueError("BEHAVIOUR_AWS_ACCESS_KEY_ID is not set")
+    if S3_SECRET_ACCESS_KEY is None or S3_SECRET_ACCESS_KEY == "":
+        raise ValueError(get_env_name("S3_SECRET_ACCESS_KEY") + " is not set")
+    if S3_ACCESS_KEY_ID is None or S3_ACCESS_KEY_ID == "":
+        raise ValueError(get_env_name("S3_ACCESS_KEY_ID") + " is not set")
 
 
 if __name__ == "__main__":

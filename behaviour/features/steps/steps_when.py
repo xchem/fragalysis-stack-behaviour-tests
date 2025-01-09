@@ -4,10 +4,10 @@ import requests
 from api_utils import upload_target_experiment
 from awx_utils import get_stack_url
 from behave import when
+from config import REQUEST_TIMEOUT
 from s3_utils import get_object
 
 _DOWNLOAD_PATH = "."
-_REQUEST_TIMEOUT: int = 8
 
 
 @when("I do a {method} request at {endpoint}")  # pylint: disable=not-callable
@@ -27,7 +27,7 @@ def step_impl(context, method, endpoint) -> None:
     print(f"stack_url={context.stack_url}")
 
     resp = requests.request(
-        method, context.stack_url + endpoint, timeout=_REQUEST_TIMEOUT
+        method, context.stack_url + endpoint, timeout=REQUEST_TIMEOUT
     )
     context.response = resp
     context.status_code = resp.status_code

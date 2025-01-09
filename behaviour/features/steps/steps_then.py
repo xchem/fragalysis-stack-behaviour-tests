@@ -6,9 +6,7 @@ from typing import Any, Dict, Optional
 import requests
 from api_utils import api_get_request
 from behave import then
-
-_REQUEST_TIMEOUT: int = 8
-_REQUEST_POLL_PERIOD_S: int = 4
+from config import REQUEST_POLL_PERIOD_S, REQUEST_TIMEOUT
 
 
 @then(  # pylint: disable=not-callable
@@ -20,7 +18,7 @@ def step_impl(context, status_code_name) -> None:
     assert context.failed is False
     assert hasattr(context, "stack_url")
 
-    resp = requests.get(context.stack_url, timeout=_REQUEST_TIMEOUT)
+    resp = requests.get(context.stack_url, timeout=REQUEST_TIMEOUT)
     assert resp
 
     expected_code = http.HTTPStatus[status_code_name].value
@@ -125,7 +123,7 @@ def step_impl(context, status, timeout_m) -> None:  # pylint: disable=function-r
         else:
             now = datetime.now()
             assert now - start_time <= timeout_period
-            time.sleep(_REQUEST_POLL_PERIOD_S)
+            time.sleep(REQUEST_POLL_PERIOD_S)
 
     print(f"Finished waiting [{now}]")
 

@@ -4,31 +4,24 @@ import os
 import shlex
 import subprocess
 import tempfile
-from typing import Optional
 
 import yaml
-
-# In order to deploy production-like stacks (to kubernetes) we'll need a number of variables.
-# The AWX host (without a protocol, i.e. 'example.com') and
-# a user that can run the Job Templates we'll be using.
-_AWX_HOST: Optional[str] = os.environ.get("BEHAVIOUR_AWX_HOST")
-_AWX_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_AWX_USERNAME")
-_AWX_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_AWX_PASSWORD")
+from config import AWX_HOST, AWX_PASSWORD, AWX_USERNAME, get_env_name
 
 
 def get_stack_url(name: str) -> str:
     """Returns the stack URL (i.e. https://example.com) that is expected to have been
     created by the AWX Job Template for the AWX user."""
-    if not _AWX_USERNAME:
-        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
-    return f"https://fragalysis-{_AWX_USERNAME.lower()}-{name.lower()}.xchem-dev.diamond.ac.uk"
+    if not AWX_USERNAME:
+        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
+    return f"https://fragalysis-{AWX_USERNAME.lower()}-{name.lower()}.xchem-dev.diamond.ac.uk"
 
 
 def get_stack_username() -> str:
     """Returns the AWX username - tha author of the stack."""
-    if not _AWX_USERNAME:
-        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
-    return _AWX_USERNAME
+    if not AWX_USERNAME:
+        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
+    return AWX_USERNAME
 
 
 def launch_awx_job_template(template, *, extra_vars) -> None:
@@ -36,12 +29,12 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     while also providing extra variables via a temporary file.
     """
 
-    if not _AWX_HOST:
-        raise ValueError("BEHAVIOUR_AWX_HOST is not set (e.g. example.com)")
-    if not _AWX_USERNAME:
-        raise ValueError("BEHAVIOUR_AWX_USERNAME is not set")
-    if not _AWX_PASSWORD:
-        raise ValueError("BEHAVIOUR_AWX_PASSWORD is not set")
+    if not AWX_HOST:
+        raise ValueError(get_env_name("AWX_HOST") + " is not set")
+    if not AWX_USERNAME:
+        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
+    if not AWX_PASSWORD:
+        raise ValueError(get_env_name("AWX_PASSWORD") + " is not set")
 
     print(f"Launching AWX JobTemplate '{template}'...")
     print(f"AWX JobTemplate extra_vars={extra_vars}")
@@ -65,9 +58,9 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     split_cmd = shlex.split(cmd)
 
     env = os.environ.copy()
-    env["CONTROLLER_HOST"] = f"https://{_AWX_HOST}"
-    env["CONTROLLER_USERNAME"] = _AWX_USERNAME
-    env["CONTROLLER_PASSWORD"] = _AWX_PASSWORD
+    env["CONTROLLER_HOST"] = f"https://{AWX_HOST}"
+    env["CONTROLLER_USERNAME"] = AWX_USERNAME
+    env["CONTROLLER_PASSWORD"] = AWX_PASSWORD
 
     cmd_process = subprocess.run(split_cmd, capture_output=True, check=False, env=env)
     if cmd_process.returncode != 0:

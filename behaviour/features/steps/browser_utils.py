@@ -1,21 +1,17 @@
 #!/usr/bin/env python
-import os
 import re
 from html import unescape
-from typing import Optional
 
 from awx_utils import get_stack_url
+from config import (
+    STACK_CLIENT_ID_SECRET,
+    STACK_NAME,
+    STACK_PASSWORD,
+    STACK_USERNAME,
+    get_env_name,
+)
 
 from playwright.sync_api import expect, sync_playwright
-
-# Fragalysis Stack name (used to form the stack's URL), and credentials for a CAS user.
-# The username is also used to form the stack's URL by the AWX Job Template.
-_STACK_NAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_NAME")
-_STACK_USERNAME: Optional[str] = os.environ.get("BEHAVIOUR_STACK_USERNAME")
-_STACK_PASSWORD: Optional[str] = os.environ.get("BEHAVIOUR_STACK_PASSWORD")
-_STACK_CLIENT_ID_SECRET: Optional[str] = os.environ.get(
-    "BEHAVIOUR_STACK_CLIENT_ID_SECRET"
-)
 
 # How to find the session ID from the /api/token page...
 _RE_SESSION_ID = re.compile(r"\"sessionid\": \"([a-z0-9]+)\"")
@@ -23,32 +19,32 @@ _RE_SESSION_ID = re.compile(r"\"sessionid\": \"([a-z0-9]+)\"")
 
 def get_stack_client_id_secret() -> str:
     """Returns the configured Client ID secret"""
-    if not _STACK_CLIENT_ID_SECRET:
-        raise ValueError("BEHAVIOUR_STACK_CLIENT_ID_SECRET is not set")
-    return _STACK_CLIENT_ID_SECRET
+    if not STACK_CLIENT_ID_SECRET:
+        raise ValueError(get_env_name("STACK_CLIENT_ID_SECRET") + " is not set")
+    return STACK_CLIENT_ID_SECRET
 
 
 def get_stack_name() -> str:
     """Returns the configured stack name (lower case)"""
-    if not _STACK_NAME:
-        raise ValueError("BEHAVIOUR_STACK_NAME is not set")
-    return _STACK_NAME.lower()
+    if not STACK_NAME:
+        raise ValueError(get_env_name("STACK_NAME") + " is not set")
+    return STACK_NAME.lower()
 
 
 def login(host_url: str) -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
     given a host url(i.e. https://example.com)"""
-    if not _STACK_USERNAME:
-        raise ValueError("BEHAVIOUR_STACK_USERNAME is not set")
-    if not _STACK_PASSWORD:
-        raise ValueError("BEHAVIOUR_STACK_PASSWORD is not set")
+    if not STACK_USERNAME:
+        raise ValueError(get_env_name("STACK_USERNAME") + " is not set")
+    if not STACK_PASSWORD:
+        raise ValueError(get_env_name("STACK_PASSWORD") + " is not set")
 
     with sync_playwright() as spw:
         session_id_value: str = _run_login_logic_for_cas(
             spw,
             host_url=host_url,
-            user=_STACK_USERNAME,
-            password=_STACK_PASSWORD,
+            user=STACK_USERNAME,
+            password=STACK_PASSWORD,
         )
     return session_id_value
 
