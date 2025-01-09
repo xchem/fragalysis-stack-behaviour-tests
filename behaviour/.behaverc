@@ -3,3 +3,4 @@
 show_source = false
 stop = true
 summary = false
+show_skipped = false
