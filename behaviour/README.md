@@ -14,28 +14,34 @@ To run the tests (from a suitable environment), run `behave` from the `bdd` dire
 
 There is a `.behaverc` that is used to alter its default behaviour.
 
->   You can view stdout issued by the underlying behaviour tests
+## Cheat sheet
+Take a look at `behave --help`, but here are some useful additional commands: -
+
+-   You can view stdout issued by the underlying behaviour tests
     by adding the `--no-capture` command-line option. if you don't do this
     you'll only see the output if the test fails.
-
->   You can avoid stopping on the first error by adding `--no-stop`
-
->   To see a test summary you could add `--summary`
-
->   To see a catalogue of all the available steps add `--steps-catalog`
+-   You can avoid stopping on the first error by adding `--no-stop`
+-   To see a test summary you could add `--summary`
+-   To see a catalogue of all the available steps add `--steps-catalog`
+-   You can run `@wip` tests by adding `--wip` (or `-w`)
+-   You can run a specific feature file by adding `--include <feature file>`
+    (or `-i <feature file>`), e.g. `behave -i public-target-loader`
+-   You can run a specific scenario by adding  regular expression with
+    `--name <expression>` (or `-n <expression>`), e.g. `behave -n "Load public targets"`
 
 ## Step definition design
-Feature steps are located in the standard `features/steps` directory. Direct
-implementations of steps can be foun din corresponding **given**, **then**,
-and **when** files (e.g. `steps_when.py`). Common logic is located in other
-(`_utils.py`) files.
+Feature steps are all located in the standard `features/steps` directory, where you
+will find all the steps defined in `steps.py`). To avoid cluttering the file
+and ensuring it's size is not unwieldy a lot of logic can be found in relates
+files in the steps directory: -
 
-You will find: -
-
+-   Configuration (extraction of environment variable values)
+    is handled in `config.py`. So you can go here to find all the
+    supported environment variables (all of which begin `BEHAVIOUR_`).
+-   General Fragalysis API support in `api_utils.py`.
 -   AWX logic used to deploy stack components in `awx_utis.py`.
 -   Fragalysis Front-end logic in `browser_utils.py`. This module
     wraps-up API calls and provides stack login mechanics.
--   General Fragalysis API support in `api_utils.py`.
 -   AWS S3-like storage support in `s3_utils.py`.
 
 ---
