@@ -21,24 +21,19 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And load it against target access string "lb18145-1"
     Then the response should be ACCEPTED
     And the response should contain a task status endpoint
-    And the task status should have a value of SUCCESS within 7 minutes
+    And the task status should have a value of SUCCESS within 6 minutes
 
   @wip
-  Scenario: Create a SessionProject
+  Scenario: Create a SessionProject and Snapshot
     Given I can login
     And can get the "A71EV2A" Target ID
     When I create a new SessionProject with the title "Behaviour SessionProject"
     Then the response should be CREATED
-
-  @wip
-  Scenario: Create a Snapshot
-    Given I can login
-    And can get the "Behaviour SessionProject" SessionProject ID
     When I create a new Snapshot with the title "Behaviour Snapshot"
     Then the response should be CREATED
 
   @wip
-  Scenario: Transfer Snapshot files to Squonk
+  Scenario: Transfer A71EV2A Snapshot files to Squonk
     Given I can login
     And can get the "lb18145-1" Project ID
     And can get the "A71EV2A" Target ID
@@ -51,17 +46,11 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
           "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
         ],
         "compounds": [
-          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
-          "A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
-          "A71EV2A-x0269/A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "A71EV2A-x0269/A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
         ],
       }
       """
     Then the response should be OK
-#    Then the response should be OK
-#    Then the length of the list in the response should be 1
-#    When I run job <job> on the target <target>
-#    Then the operation should return a status of CREATED
-#    And the operation should return a Job Request ID
-#    And the Job should complete within 10 minutes
-#    And I should find the result loaded into the stack
+    And the file transfer status should have a value of SUCCESS within 2 minutes

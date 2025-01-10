@@ -552,6 +552,64 @@ def i_transfer_the_following_files_to_squonk(context) -> None:
 
     context.status_code = resp.status_code
     context.response = resp
-    job_transfer_id = resp.json()["id"]
-    print(f"Started file transfer ({job_transfer_id})")
-    context.job_transfer_id = job_transfer_id
+    job_file_transfer_id = resp.json()["id"]
+    print(f"Started file transfer ({job_file_transfer_id})")
+    context.job_file_transfer_id = job_file_transfer_id
+
+
+@then(  # pylint: disable=not-callable
+    "the file transfer status should have a value of {status} within {timeout_m:d} minutes"
+)
+def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
+    context, status, timeout_m
+) -> None:
+    """Waits until the known job transfer ID has the given status.
+    It relies on context members: -
+    - stack_name
+    - session_id
+    - job_file_transfer_id
+    """
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "job_file_transfer_id")
+
+    start_time = datetime.now()
+    timeout_period = timedelta(minutes=timeout_m)
+
+    print(
+        f"Waiting for job file transfer {context.job_file_transfer_id} [{start_time}]..."
+    )
+
+    done: bool = False
+    data: Optional[Dict[str, Any]] = None
+    now: datetime = start_time
+    while not done:
+
+        # Get the Job File Transfer status.
+        # The response normally contains the following properties: -
+        # - transfer_status (i.e. SUCCESS, FAILURE)
+        # - transfer_datetime (the time the transfer finished)
+        resp = api_get_request(
+            base_url=get_stack_url(context.stack_name),
+            endpoint=f"/api/job_file_transfer/{context.job_file_transfer_id}",
+            session_id=context.session_id,
+        )
+        assert resp.status_code == http.HTTPStatus["OK"].value
+
+        assert "results" in resp.json()
+        data = resp.json()["results"][0]
+        if "transfer_datetime" in data and data["transfer_datetime"]:
+            print("Job file transfer finished")
+            done = True
+        else:
+            now = datetime.now()
+            assert now - start_time <= timeout_period
+            time.sleep(REQUEST_POLL_PERIOD_S)
+
+    print(f"Finished waiting [{now}]")
+
+    assert "transfer_status" in data
+    assert (
+        data["transfer_status"] == status
+    ), f"Expected {status}, got {data['transfer_status']}"
