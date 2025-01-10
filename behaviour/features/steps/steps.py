@@ -16,8 +16,8 @@ might be used (legitimately) for multiple types of steps (i.e. given and then).
 #       i.e. "this is a string". This applies to the target access string
 #       and any _naturel_ string like a title. Certainly anything that can contain spaces!
 
+import ast
 import http
-import json
 import os
 import time
 import urllib.parse
@@ -35,15 +35,13 @@ from api_utils import (
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
 from behave import given, then, when
 from browser_utils import get_stack_client_id_secret, get_stack_name, login
-from config import REQUEST_POLL_PERIOD_S, REQUEST_TIMEOUT
-from s3_utils import check_bucket, get_object
-
-# To create a stack we need to know the names of templates (in the AWX server)
-# that are responsible for its creation and destruction: -
-_AWX_STACK_CREATE_JOB_TEMPLATE: str = "User (%(username)s) Developer Fragalysis Stack"
-_AWX_STACK_WIPE_JOB_TEMPLATE: str = (
-    "User (%(username)s) Developer Fragalysis Stack [WIPE]"
+from config import (
+    AWX_STACK_CREATE_JOB_TEMPLATE,
+    AWX_STACK_WIPE_JOB_TEMPLATE,
+    REQUEST_POLL_PERIOD_S,
+    REQUEST_TIMEOUT,
 )
+from s3_utils import check_bucket, get_object
 
 _DOWNLOAD_PATH = "."
 
@@ -51,12 +49,11 @@ _DOWNLOAD_PATH = "."
 @given("an empty stack using the image tag {image_tag}")  # pylint: disable=not-callable
 def an_empty_stack_using_the_image_tag_x(context, image_tag) -> None:
     """Wipe any existing stack content and create a new (empty) one.
-    The user can pass in a JSON-encoded set of extra variables
+    The user can pass in a Dictionary encoded set of extra variables
     via the context.text attribute. This appears as a string.
 
     If successful it sets the following context members: -
     - stack_name (e.g. 'behaviour')
-    - stack_url (e.g. https://example.com)
     """
     assert context.failed is False
 
@@ -84,24 +81,21 @@ def an_empty_stack_using_the_image_tag_x(context, image_tag) -> None:
     # If the user has passed in extra variables, merge them in.
     if context.text:
         print(context.text)
-        step_vars = json.loads(context.text)
+        step_vars = ast.literal_eval(context.text)
         extra_vars |= step_vars
         print(f"Using step text as extra variables: {step_vars}")
 
-    wipe_jt = _AWX_STACK_WIPE_JOB_TEMPLATE % {
+    wipe_jt = AWX_STACK_WIPE_JOB_TEMPLATE % {
         "username": get_stack_username().capitalize()
     }
     launch_awx_job_template(wipe_jt, extra_vars=extra_vars)
 
-    create_jt = _AWX_STACK_CREATE_JOB_TEMPLATE % {
+    create_jt = AWX_STACK_CREATE_JOB_TEMPLATE % {
         "username": get_stack_username().capitalize()
     }
     launch_awx_job_template(create_jt, extra_vars=extra_vars)
 
     context.stack_name = stack_name
-    # The URL does not end with '/', so paths will need to start with '/'
-    context.stack_url = get_stack_url(stack_name)
-
     print(f"Created stack '{stack_name}'")
 
 
@@ -239,11 +233,11 @@ def can_get_the_x_snapshot_id(context, title) -> None:
 )
 def the_landing_page_response_should_be_x(context, status_code_name) -> None:
     """Just make sure the stack is up, and relies on context members: -
-    - stack_url"""
+    - stack_name"""
     assert context.failed is False
-    assert hasattr(context, "stack_url")
+    assert hasattr(context, "stack_name")
 
-    resp = requests.get(context.stack_url, timeout=REQUEST_TIMEOUT)
+    resp = requests.get(get_stack_url(context.stack_name), timeout=REQUEST_TIMEOUT)
     assert resp
 
     expected_code = http.HTTPStatus[status_code_name].value
@@ -274,12 +268,9 @@ def the_response_should_be_x(context, status_code_name) -> None:
     assert hasattr(context, "status_code")
 
     expected_status_code = http.HTTPStatus[status_code_name].value
-    if context.status_code != expected_status_code:
-        print(
-            f"Expected status code {expected_status_code} ({status_code_name}),"
-            f" got {context.status_code}"
-        )
-        assert context.status_code == expected_status_code
+    assert (
+        context.status_code == expected_status_code
+    ), f"Expected {expected_status_code}, got {context.status_code}"
 
 
 @then(  # pylint: disable=not-callable
@@ -311,14 +302,12 @@ def the_task_should_have_a_value_of_x_within_y_minutes(
 ) -> None:
     """Relies on context members: -
     - session_id
-    - stack_url
     - task_status_endpoint
     """
     assert timeout_m > 0
 
     assert context.failed is False
     assert hasattr(context, "session_id")
-    assert hasattr(context, "stack_url")
     assert hasattr(context, "task_status_endpoint")
 
     start_time = datetime.now()
@@ -338,7 +327,7 @@ def the_task_should_have_a_value_of_x_within_y_minutes(
         # - status (i.e. RUNNING, SUCCESS)
         # - messages (a list of strings)
         resp = api_get_request(
-            base_url=context.stack_url,
+            base_url=get_stack_url(context.stack_name),
             endpoint=context.task_status_endpoint,
             session_id=context.session_id,
         )
@@ -367,7 +356,6 @@ def i_do_a_x_request_at_y(context, method, endpoint) -> None:
     """Makes a REST request on an endpoint. Relies on context members: -
     - stack_name
     Sets the following context members: -
-    - stack_url
     - status_code
     - response
     - response_count (optional)
@@ -375,12 +363,10 @@ def i_do_a_x_request_at_y(context, method, endpoint) -> None:
     assert context.failed is False
     assert hasattr(context, "stack_name")
 
-    context.stack_url = get_stack_url(context.stack_name)
-    print(f"stack_url={context.stack_url}")
+    stack_url = get_stack_url(context.stack_name)
+    print(f"stack_url={stack_url}")
 
-    resp = requests.request(
-        method, context.stack_url + endpoint, timeout=REQUEST_TIMEOUT
-    )
+    resp = requests.request(method, stack_url + endpoint, timeout=REQUEST_TIMEOUT)
     context.response = resp
     context.status_code = resp.status_code
     if isinstance(resp.json(), dict) and "count" in resp.json():
@@ -443,9 +429,9 @@ def load_it_against_target_access_string_x(context, tas) -> None:
     context.status_code = resp.status_code
 
 
-@when(
+@when(  # pylint: disable=not-callable
     'I create a new SessionProject with the title "{title}"'
-)  # pylint: disable=not-callable
+)
 def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
     """Relies on context members: -
     - stack_name
@@ -473,9 +459,9 @@ def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
     context.session_project_id = session_project_id
 
 
-@when(
+@when(  # pylint: disable=not-callable
     'I create a new Snapshot with the title "{title}"'
-)  # pylint: disable=not-callable
+)
 def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
     """Relies on context members: -
     - stack_name
@@ -508,9 +494,11 @@ def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
     context.snapshot_id = snapshot_id
 
 
-@when("I transfer Snapshot files to Squonk")  # pylint: disable=not-callable
-def i_transfer_snapshot_files_to_squonk(context) -> None:
-    """Relies on context members: -
+@when("I transfer the following files to Squonk")  # pylint: disable=not-callable
+def i_transfer_the_following_files_to_squonk(context) -> None:
+    """This step requires the files to be identified in the step 'doc string',
+    a dictionary containing a 'proteins' key that's a lits of files.
+    It relies on context members: -
     - stack_name
     - session_id
     - project_id
@@ -530,7 +518,25 @@ def i_transfer_snapshot_files_to_squonk(context) -> None:
     assert hasattr(context, "snapshot_id")
     assert hasattr(context, "session_project_id")
 
-    print("Initiating file transfer...")
+    # We expect a dictionary in the step's doc string.
+    # It will contain a list of proteins and compounds.
+    # We pass these lists to the API as a comma-separated string.
+    assert context.text is not None
+    text_map: Dict[str, Any] = ast.literal_eval(context.text)
+    assert "proteins" in text_map
+    assert "compounds" in text_map
+
+    assert isinstance(text_map["proteins"], list)
+    num_proteins = len(text_map["proteins"])
+    assert num_proteins > 0
+    proteins: str = ",".join(text_map["proteins"])
+
+    assert isinstance(text_map["compounds"], list)
+    num_compounds = len(text_map["compounds"])
+    assert num_compounds > 0
+    compounds: str = ",".join(text_map["compounds"])
+
+    print(f"Initiating file transfer ({num_proteins} & {num_compounds})...")
     stack_url = get_stack_url(context.stack_name)
     resp = initiate_job_file_transfer(
         base_url=stack_url,
@@ -539,6 +545,8 @@ def i_transfer_snapshot_files_to_squonk(context) -> None:
         target_id=context.target_id,
         snapshot_id=context.snapshot_id,
         session_project_id=context.session_project_id,
+        proteins=proteins,
+        compounds=compounds,
     )
     assert resp.status_code == 200, f"Expected 200, was {resp.status_code}"
 
