@@ -23,10 +23,42 @@ def api_get_request(
     The base url is the root of the apu, i.e. https://example.com. The method is the
     API method to call, i.e. /api/job_config and the session ID is the session ID to
     use for the call."""
-
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
         return session.get(urljoin(base_url, endpoint))
+
+
+def create_session_project(
+    *, base_url: str, session_id: str, target_id: int, title: str
+) -> Response:
+    """Creates a new Session Project using the given session ID."""
+    data = {
+        "title": title,
+        "description": "Auto-generated behaviour test SessionProject",
+        "target": target_id,
+    }
+    print(f"Creating SessionProject with data: {data}...")
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.post(urljoin(base_url, "/api/session-projects/"), json=data)
+
+
+def create_snapshot(
+    *, base_url: str, session_id: str, session_project_id: int, title: str
+) -> Response:
+    """Creates a new Snapshot using the given session project ID."""
+    data = {
+        "title": title,
+        "description": "Auto-generated behaviour test Snapshot",
+        "session_project": session_project_id,
+        "data": "[]",
+        "type": "INIT",
+        "children": [],
+    }
+    print(f"Creating Snapshot with data: {data}...")
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.post(urljoin(base_url, "/api/snapshots/"), json=data)
 
 
 def upload_target_experiment(
@@ -38,8 +70,6 @@ def upload_target_experiment(
     file_name: str,
 ) -> Response:
     """Uploads target data to the stack using the given TAS and file path."""
-    assert session_id
-
     with requests.Session() as session:
 
         _prepare_session(session, base_url=base_url, session_id=session_id)
@@ -61,6 +91,30 @@ def upload_target_experiment(
         return session.post(url, data=encoder, stream=True)
 
 
+def initiate_job_file_transfer(
+    *,
+    base_url: str,
+    session_id: str,
+    tas_id: int,
+    target_id: int,
+    snapshot_id: int,
+    session_project_id: int,
+):
+    """Transfers file to Squonk."""
+    data = {
+        "access": tas_id,
+        "target": target_id,
+        "snapshot": snapshot_id,
+        "session_project": session_project_id,
+        "proteins": [],
+        "compounds": [],
+    }
+    print(f"Initiating Squonk file transfer with data: {data}...")
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.post(urljoin(base_url, "/api/job_file_transfer/"), json=data)
+
+
 # Local functions
 
 
@@ -75,15 +129,6 @@ def _prepare_session(session, *, base_url: str, session_id: str) -> None:
     )
     session.get(base_url)  # A GET sets any csrftoken
     if csrftoken := session.cookies.get("csrftoken", None):
-        session.headers.update(
-            {
-                "X-CSRFToken": csrftoken,
-                "User-Agent": USER_AGENT,
-            }
-        )
+        session.headers.update({"X-CSRFToken": csrftoken, "User-Agent": USER_AGENT})
     if session_id:
-        session.cookies.update(
-            {
-                "sessionid": session_id,
-            }
-        )
+        session.cookies.update({"sessionid": session_id})
