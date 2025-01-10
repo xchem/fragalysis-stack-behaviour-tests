@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -99,6 +99,8 @@ def initiate_job_file_transfer(
     target_id: int,
     snapshot_id: int,
     session_project_id: int,
+    proteins: str,
+    compounds: str,
 ):
     """Transfers file to Squonk."""
     data = {
@@ -106,8 +108,8 @@ def initiate_job_file_transfer(
         "target": target_id,
         "snapshot": snapshot_id,
         "session_project": session_project_id,
-        "proteins": [],
-        "compounds": [],
+        "proteins": proteins,
+        "compounds": compounds,
     }
     print(f"Initiating Squonk file transfer with data: {data}...")
     with requests.Session() as session:

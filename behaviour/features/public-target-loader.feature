@@ -13,7 +13,7 @@ Feature: Verify good Targets can be loaded against the public TAS
 
     Create a new (up to date) stack for each scenario.
     We can pass-in some extra variables using the initial step's 'doc string'.
-    The doc string, if set, is interpreted as JSON.
+    The doc string, if set, is interpreted as Dictionary string.
     The variables it is expected to define will be passed to the
     corresponding AWX Job Template when it's launched.
 
