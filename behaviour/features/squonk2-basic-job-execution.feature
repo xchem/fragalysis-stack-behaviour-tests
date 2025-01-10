@@ -24,7 +24,7 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And the task status should have a value of SUCCESS within 6 minutes
 
   @wip
-  Scenario: Create a SessionProject and Snapshot
+  Scenario: Create a SessionProject and Snapshot for A71EV2A
     Given I can login
     And can get the "A71EV2A" Target ID
     When I create a new SessionProject with the title "Behaviour SessionProject"
