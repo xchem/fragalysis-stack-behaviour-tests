@@ -1,0 +1,67 @@
+Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
+
+  Here we check that a properly configured stack can run Squonk Jobs.
+
+  @wip
+  Scenario: Create a new stack for Job execution
+    Given an empty stack using the image tag latest
+    Then the landing page response should be OK
+
+  @wip
+  Scenario: A JobOverride must exist
+    Given I can login
+    When I do a GET request at /api/job_override
+    Then the length of the list in the response should be 1
+
+  @wip
+  Scenario: Load A71EV2A Target data against lb18145-1
+    Given I can login
+    And I can access the "fragalysis-stack-xchem-data" bucket
+    When I get the TGZ encoded file lb32627-66_v2.2_upload_1_2024-12_09 from the bucket
+    And load it against target access string "lb18145-1"
+    Then the response should be ACCEPTED
+    And the response should contain a task status endpoint
+    And the task status should have a value of SUCCESS within 7 minutes
+
+  @wip
+  Scenario: Create a SessionProject
+    Given I can login
+    And can get the "A71EV2A" Target ID
+    When I create a new SessionProject with the title "Behaviour SessionProject"
+    Then the response should be CREATED
+
+  @wip
+  Scenario: Create a Snapshot
+    Given I can login
+    And can get the "Behaviour SessionProject" SessionProject ID
+    When I create a new Snapshot with the title "Behaviour Snapshot"
+    Then the response should be CREATED
+
+  @wip
+  Scenario: Transfer Snapshot files to Squonk
+    Given I can login
+    And can get the "lb18145-1" Project ID
+    And can get the "A71EV2A" Target ID
+    And can get the "Behaviour SessionProject" SessionProject ID
+    And can get the "Behaviour Snapshot" Snapshot ID
+    When I transfer the following files to Squonk
+      """
+      {
+        "proteins": [
+          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+        ],
+        "compounds": [
+          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+          "A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+          "A71EV2A-x0269/A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+        ],
+      }
+      """
+    Then the response should be OK
+#    Then the response should be OK
+#    Then the length of the list in the response should be 1
+#    When I run job <job> on the target <target>
+#    Then the operation should return a status of CREATED
+#    And the operation should return a Job Request ID
+#    And the Job should complete within 10 minutes
+#    And I should find the result loaded into the stack
