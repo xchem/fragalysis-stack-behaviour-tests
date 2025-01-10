@@ -14,14 +14,14 @@ def get_env_name(name: str) -> str:
     return f"{_ENV_PREFIX}{name}"
 
 
-def _get(name: str) -> Optional[str]:
-    return os.environ.get(f"{_ENV_PREFIX}{name}")
+def _get(name: str, default_value: Optional[str] = None) -> Optional[str]:
+    return os.environ.get(f"{_ENV_PREFIX}{name}", default_value)
 
 
 # The AWX host (without a protocol, i.e. 'example.com') and
 # a user that can run the Job Templates we'll be using.
 # The user must be the owner of the Stack deployment Job Template we'll be using.
-AWX_HOST: Optional[str] = _get("AWX_HOST")
+AWX_HOST: Optional[str] = _get("AWX_HOST", "awx.xchem-dev.diamond.ac.uk")
 AWX_USERNAME: Optional[str] = _get("AWX_USERNAME")
 AWX_PASSWORD: Optional[str] = _get("AWX_PASSWORD")
 
@@ -35,7 +35,7 @@ S3_ENDPOINT_URL = _get("AWS_ENDPOINT_URL")
 
 # Fragalysis Stack name (used to form the stack's URL), and credentials for a CAS user.
 # The username is also used to form the stack's URL.
-STACK_NAME: Optional[str] = _get("STACK_NAME")
+STACK_NAME: Optional[str] = _get("STACK_NAME", "behaviour")
 STACK_USERNAME: Optional[str] = _get("STACK_USERNAME")
 STACK_PASSWORD: Optional[str] = _get("STACK_PASSWORD")
 STACK_CLIENT_ID_SECRET: Optional[str] = _get("STACK_CLIENT_ID_SECRET")

@@ -9,26 +9,25 @@ on:
   - cron: '35 6 * * *'
   workflow_dispatch:
 
+# Only one workflow run is allowed at any time.
+# The tests rely on the same stack user and name.
+concurrency:
+  group: behaviour-stack
+
 jobs:
-  test-alan:
-
-    # We have to avoid Python 3.12 (3.12.8) as the GitHub Action
-    # always generates an argparse error when we try and run
-    # the awx command from within the 'behave' tests.
-    strategy:
-      matrix:
-        python-version:
-        - '3.11'
-
+  behaviour-test:
     runs-on: ubuntu-latest
     environment: behaviour-stack-alan
 
     steps:
 
-    - name: Set up Python ${{ matrix.python-version }}
+    # We have to avoid Python 3.12 (3.12.8) as the GitHub Action
+    # always generates an argparse error when we try and run
+    # the awx command from within the 'behave' tests.
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -76,7 +75,6 @@ jobs:
         BEHAVIOUR_AWX_HOST: ${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
         BEHAVIOUR_AWX_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
         BEHAVIOUR_AWX_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
-        BEHAVIOUR_STACK_NAME: behaviour
         BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
         BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
         BEHAVIOUR_STACK_CLIENT_ID_SECRET: ${{ secrets.BEHAVIOUR_STACK_CLIENT_ID_SECRET }}
