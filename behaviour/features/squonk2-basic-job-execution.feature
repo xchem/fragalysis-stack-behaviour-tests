@@ -15,30 +15,33 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
 
   @wip
   Scenario: Load A71EV2A Target data against lb18145-1
-    Given I can login
+    Given I do not login
     And I can access the "fragalysis-stack-xchem-data" bucket
     When I get the TGZ encoded file lb32627-66_v2.2_upload_1_2024-12_09 from the bucket
-    And load it against target access string "lb18145-1"
+    And I login
+    And I load the file against target access string "lb18145-1"
     Then the response should be ACCEPTED
     And the response should contain a task status endpoint
     And the task status should have a value of SUCCESS within 6 minutes
 
   @wip
   Scenario: Create a SessionProject and Snapshot for A71EV2A
-    Given I can login
-    And can get the "A71EV2A" Target ID
-    When I create a new SessionProject with the title "Behaviour SessionProject"
+    Given I do not login
+    And I can get the "A71EV2A" Target ID
+    When I login
+    And I create a new SessionProject with the title "Behaviour SessionProject"
     Then the response should be CREATED
     When I create a new Snapshot with the title "Behaviour Snapshot"
     Then the response should be CREATED
 
   @wip
   Scenario: Transfer A71EV2A Snapshot files to Squonk
-    Given I can login
-    And can get the "lb18145-1" Project ID
-    And can get the "A71EV2A" Target ID
-    And can get the "Behaviour SessionProject" SessionProject ID
-    And can get the "Behaviour Snapshot" Snapshot ID
+    Given I do not login
+    And I can get the "lb18145-1" Project ID
+    And I can get the "A71EV2A" Target ID
+    And I can get the "Behaviour SessionProject" SessionProject ID
+    And I can get the "Behaviour Snapshot" Snapshot ID
+    When I login
     When I transfer the following files to Squonk
       """
       {

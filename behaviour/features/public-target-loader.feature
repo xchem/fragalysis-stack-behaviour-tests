@@ -28,10 +28,11 @@ Feature: Verify good Targets can be loaded against the public TAS
     We introduce a timeout to allow for the upload to complete,
     which is typically twice the expected processing time (after upload).
 
-    Given I can login
+    Given I do not login
     And I can access the "fragalysis-stack-xchem-data" bucket
     When I get the TGZ encoded file <tgz> from the bucket
-    And load it against target access string "lb18145-1"
+    And I login
+    And I load the file against target access string "lb18145-1"
     Then the response should be ACCEPTED
     And the response should contain a task status endpoint
     And the task status should have a value of SUCCESS within <upload timeout> minutes

@@ -14,7 +14,11 @@ might be used (legitimately) for multiple types of steps (i.e. given and then).
 #
 # 2.    Step string variables should normally be enclosed in double quotes,
 #       i.e. "this is a string". This applies to the target access string
-#       and any _naturel_ string like a title. Certainly anything that can contain spaces!
+#       and any _natural_ string like a title, e.g.: -
+#
+#           And I can get the "A71EV2A" Target ID
+#
+#       Certainly this applies anything that can contain spaces!
 
 import ast
 import http
@@ -100,7 +104,8 @@ def an_empty_stack_using_the_image_tag_x(context, image_tag) -> None:
 
 
 @given("I can login")  # pylint: disable=not-callable
-def i_can_login(context) -> None:
+@when("I login")  # pylint: disable=not-callable
+def do_login(context) -> None:
     """Sets the context members: -
     - stack_name
     - session_id"""
@@ -130,8 +135,8 @@ def i_can_access_the_x_bucket(context, bucket_name) -> None:
     context.bucket_name = bucket_name
 
 
-@given('can get the "{title}" Target ID')  # pylint: disable=not-callable
-def can_get_the_x_target_id(context, title) -> None:
+@given('I can get the "{title}" Target ID')  # pylint: disable=not-callable
+def i_can_get_the_x_target_id(context, title) -> None:
     """Checks a Target exists and records its ID and relies on the context members: -
     - session_id
     - stack_name
@@ -154,8 +159,8 @@ def can_get_the_x_target_id(context, title) -> None:
     context.target_id = target_id
 
 
-@given('can get the "{title}" Project ID')  # pylint: disable=not-callable
-def can_get_the_x_project_id(context, title) -> None:
+@given('I can get the "{title}" Project ID')  # pylint: disable=not-callable
+def i_can_get_the_x_project_id(context, title) -> None:
     """Checks a Project exists and records its ID and relies on the context members: -
     - session_id
     - stack_name
@@ -178,8 +183,8 @@ def can_get_the_x_project_id(context, title) -> None:
     context.project_id = project_id
 
 
-@given('can get the "{title}" SessionProject ID')  # pylint: disable=not-callable
-def can_get_the_x_session_project_id(context, title) -> None:
+@given('I can get the "{title}" SessionProject ID')  # pylint: disable=not-callable
+def i_can_get_the_x_session_project_id(context, title) -> None:
     """Checks a SessionProject exists and records its ID relying on the context members: -
     - session_id
     - stack_name
@@ -203,8 +208,8 @@ def can_get_the_x_session_project_id(context, title) -> None:
     context.session_project_id = session_project_id
 
 
-@given('can get the "{title}" Snapshot ID')  # pylint: disable=not-callable
-def can_get_the_x_snapshot_id(context, title) -> None:
+@given('I can get the "{title}" Snapshot ID')  # pylint: disable=not-callable
+def i_can_get_the_x_snapshot_id(context, title) -> None:
     """Checks a Snapshot exists and records its ID relying on the context members: -
     - session_id
     - stack_name
@@ -400,8 +405,10 @@ def i_get_the_x_encoded_file_y_from_the_bucket(context, ext, bucket_object) -> N
     context.target_file = target_file
 
 
-@when('load it against target access string "{tas}"')  # pylint: disable=not-callable
-def load_it_against_target_access_string_x(context, tas) -> None:
+@when(  # pylint: disable=not-callable
+    'I load the file against target access string "{tas}"'
+)
+def i_load_the_file_against_target_access_string_x(context, tas) -> None:
     """Loads a previously downloaded file into the stack using the given TAS.
     Relies on context members: -
     - target_file
