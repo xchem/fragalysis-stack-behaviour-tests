@@ -52,3 +52,15 @@ repos:
     args:
     - --target-version
     - py312
+
+# pylint
+- repo: https://github.com/pycqa/pylint
+  rev: v3.3.3
+  hooks:
+  - id: pylint
+    entry: pylint behaviour/features/steps/*.py
+    args:
+    - --disable=import-error
+    - --py-version=3.12
+    always_run: true
+    pass_filenames: false

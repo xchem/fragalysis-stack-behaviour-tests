@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""Utilities for interacting with the fragalysis UI that are normally accomplished
+via a browser, such as logging in. Underlying logic is handled by playwright.
+"""
 import re
 from html import unescape
 

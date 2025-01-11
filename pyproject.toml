@@ -19,7 +19,15 @@ requests-toolbelt = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
+isort = "^5.13.2"
 pre-commit = "^4.0.1"
+pylint = "^3.3.3"
+
+[tool.pylint.messages_control]
+disable = [
+    "line-too-long",
+    "too-many-arguments",
+]
 
 [build-system]
 requires = ["poetry-core"]

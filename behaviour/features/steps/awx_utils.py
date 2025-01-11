@@ -44,9 +44,8 @@ def launch_awx_job_template(template, *, extra_vars) -> None:
     # Put any extra_vars into a local temporary YAML file
     fp = None
     if extra_vars:
-        fp = tempfile.NamedTemporaryFile(mode="w", delete=False)
-        yaml.dump(extra_vars, fp)
-        fp.close()
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as fp:
+            yaml.dump(extra_vars, fp)
 
         cmd += f" --extra_vars @{fp.name}"
 

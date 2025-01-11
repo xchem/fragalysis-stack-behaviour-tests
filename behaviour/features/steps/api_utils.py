@@ -1,5 +1,9 @@
+"""A collection of functions to simplify access to the stack's API,
+used primarily to reduce the number of lines in the step file.
+"""
+
 import os
-from typing import List, Optional
+from typing import Optional
 from urllib.parse import urljoin
 
 import requests
@@ -79,7 +83,9 @@ def upload_target_experiment(
                 "target_access_string": tas,
                 "file": (
                     file_name,
-                    open(os.path.join(file_directory, file_name), "rb"),
+                    open(  # pylint: disable=consider-using-with
+                        os.path.join(file_directory, file_name), "rb"
+                    ),
                     "application/octet-stream",
                 ),
             }
