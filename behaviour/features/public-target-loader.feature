@@ -42,11 +42,11 @@ Feature: Verify good Targets can be loaded against the public TAS
     And the response should contain a task status endpoint
     And the task status should have a value of SUCCESS within <upload timeout> minutes
     When I do a GET request at /api/target_experiment_uploads
-    Then the length of the list in the response should be 1
+    Then the length of the list in the response should be <upload count>
     When I do a GET request at /api/targets?title=<target>
     Then the length of the list in the response should be 1
 
     Examples: Experiment files and Targets
-    | tgz                                 | target    | upload timeout |
-    | lb32627-66_v2.2_upload_1_2024-12_09 | A71EV2A   | 6  |
-    | lb32633-6_v2.2_upload_1_2024-11-22  | CHIKV_Mac | 14 |
+    | tgz                                 | target    | upload timeout | upload count |
+    | lb32627-66_v2.2_upload_1_2024-12_09 | A71EV2A   | 6  | 1 |
+    | lb32633-6_v2.2_upload_1_2024-11-22  | CHIKV_Mac | 14 | 2 |
