@@ -30,6 +30,7 @@ from typing import Any, Dict, Optional
 
 import requests
 from api_utils import (
+    api_delete_request,
     api_get_request,
     create_session_project,
     create_snapshot,
@@ -208,6 +209,28 @@ def i_can_get_the_x_session_project_id(context, title) -> None:
     context.session_project_id = session_project_id
 
 
+@when("I delete the SessionProject")  # pylint: disable=not-callable
+def i_delete_the_sessionproject(context) -> None:
+    """Deletes a Snapshot relying on the context members: -
+    - session_id
+    - stack_name
+    - session_project_id
+    And sets: -
+    - status_code"""
+    assert context.failed is False
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "session_project_id")
+
+    print(f"Deleting SessionProject ID {context.session_project_id}...")
+    resp = api_delete_request(
+        base_url=get_stack_url(context.stack_name),
+        endpoint=f"/api/session-projects/{context.session_project_id}",
+        session_id=context.session_id,
+    )
+    context.status_code = resp.status_code
+
+
 @given('I can get the "{title}" Snapshot ID')  # pylint: disable=not-callable
 def i_can_get_the_x_snapshot_id(context, title) -> None:
     """Checks a Snapshot exists and records its ID relying on the context members: -
@@ -226,11 +249,33 @@ def i_can_get_the_x_snapshot_id(context, title) -> None:
         endpoint=f"/api/snapshots?{url_encoded_title}",
         session_id=session_id,
     )
-    assert resp.status_code == 200
+    assert resp.status_code == 200, f"Expected 200, was {resp.status_code}"
 
     snapshot_id = resp.json()["results"][0]["id"]
     print(f"Got snapshot_id={snapshot_id}")
     context.snapshot_id = snapshot_id
+
+
+@when("I delete the Snapshot")  # pylint: disable=not-callable
+def i_delete_the_snapshot(context) -> None:
+    """Deletes a Snapshot relying on the context members: -
+    - session_id
+    - stack_name
+    - snapshot_id
+    And sets: -
+    - status_code"""
+    assert context.failed is False
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "snapshot_id")
+
+    print(f"Deleting Snapshot ID {context.snapshot_id}...")
+    resp = api_delete_request(
+        base_url=get_stack_url(context.stack_name),
+        endpoint=f"/api/snapshots/{context.snapshot_id}",
+        session_id=context.session_id,
+    )
+    context.status_code = resp.status_code
 
 
 @then(  # pylint: disable=not-callable
@@ -446,7 +491,7 @@ def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
     We set the following context members: -
     - response
     - status_code
-    - session_project_id
+    - session_project_id (optional)
     """
     assert context.failed is False
     assert hasattr(context, "stack_name")
@@ -457,13 +502,13 @@ def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
     resp = create_session_project(
         base_url=stack_url, session_id=context.session_id, target_id=1, title=title
     )
-    assert resp.status_code == 201, f"Expected 201, was {resp.status_code}"
 
     context.status_code = resp.status_code
     context.response = resp
-    session_project_id = resp.json()["id"]
-    print(f"Created new SessionProject ({session_project_id})")
-    context.session_project_id = session_project_id
+    if "application/json" in resp.headers.get("Content-Type", ""):
+        session_project_id = resp.json()["id"]
+        print(f"Created new SessionProject ({session_project_id})")
+        context.session_project_id = session_project_id
 
 
 @when(  # pylint: disable=not-callable
@@ -477,7 +522,7 @@ def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
     We set the following context members: -
     - response
     - status_code
-    - snapshot_id
+    - snapshot_id (optional)
     """
     assert context.failed is False
     assert hasattr(context, "stack_name")
@@ -496,9 +541,10 @@ def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
 
     context.status_code = resp.status_code
     context.response = resp
-    snapshot_id = resp.json()["id"]
-    print(f"Created new Snapshot ({snapshot_id})")
-    context.snapshot_id = snapshot_id
+    if "application/json" in resp.headers.get("Content-Type", ""):
+        snapshot_id = resp.json()["id"]
+        print(f"Created new Snapshot ({snapshot_id})")
+        context.snapshot_id = snapshot_id
 
 
 @when("I transfer the following files to Squonk")  # pylint: disable=not-callable

@@ -6,12 +6,17 @@ Feature: Verify good Targets can be loaded against the public TAS
   We rely on a clean stack and a CAS-authenticated user who is also
   a member of the public TAS (lb18145-1).
 
+  To significantly reduce execution time the feature has to be treated as one.
+  The target loading only works if the stack is clean, but we do not create
+  a clean stack for each iteration. So the feature starts with a clean stack
+  but scenarios in this feature rely on that initial requirement.
+
   The steps rely on 'sensitive' material that is expected to be provided
   by environment variables. The tests will alert if these are not set.
 
-  Background: Start with a new (empty) stack
+  Scenario: Start with a new (empty) stack
 
-    Create a new (up to date) stack for each scenario.
+    Create a new (up to date) stack.
     We can pass-in some extra variables using the initial step's 'doc string'.
     The doc string, if set, is interpreted as Dictionary string.
     The variables it is expected to define will be passed to the

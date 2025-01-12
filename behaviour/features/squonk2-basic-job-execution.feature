@@ -2,7 +2,12 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
 
   Here we check that a properly configured stack can run Squonk Jobs.
 
-  @wip
+  To significantly reduce execution time the feature has to be treated as one.
+  The job execution only works reliably if the stack is clean, but we do not create
+  a clean stack for each scenario as that would take too long.
+  So the feature starts with a clean stack and scenarios in this feature
+  rely on that initial requirement.
+
   Scenario: Create a new stack for Job execution
     Given an empty stack using the image tag latest
     Then the landing page response should be OK
@@ -13,7 +18,6 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     When I do a GET request at /api/job_override
     Then the length of the list in the response should be 1
 
-  @wip
   Scenario: Load A71EV2A Target data against lb18145-1
     Given I do not login
     And I can access the "fragalysis-stack-xchem-data" bucket
@@ -24,7 +28,6 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And the response should contain a task status endpoint
     And the task status should have a value of SUCCESS within 6 minutes
 
-  @wip
   Scenario: Create a SessionProject and Snapshot for A71EV2A
     Given I do not login
     And I can get the "A71EV2A" Target ID
@@ -57,3 +60,13 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
     Then the response should be OK
     And the file transfer status should have a value of SUCCESS within 2 minutes
+
+  Scenario: Delete the Snapshot and SessionProject
+    Given I do not login
+    And I can get the "Behaviour Snapshot" Snapshot ID
+    And I can get the "Behaviour SessionProject" SessionProject ID
+    When I login
+    And I delete the Snapshot
+    Then the response should be NO_CONTENT
+    When I delete the SessionProject
+    Then the response should be NO_CONTENT
