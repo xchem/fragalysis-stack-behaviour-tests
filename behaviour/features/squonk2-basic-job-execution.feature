@@ -71,12 +71,12 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
       {
         "proteins": [
-          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+          "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
         ],
         "compounds": [
-          "A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "A71EV2A-x0269/A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
         ],
       }
       """
@@ -91,15 +91,24 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And I can get the "Behaviour SessionProject" SessionProject ID
     And I can get the "Behaviour Snapshot" Snapshot ID
     When I login
-    And I create the "fragmenstein-combine" JobRequest with the following specification
+    And I create a JobRequest with the following specification
       """
         {
-          "spec": {}
+          "collection": "fragmenstein",
+          "job": "fragmenstein-combine",
+          "version": "1.0.0",
+          "variables": {
+            "protein": "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+            "fragments": [
+              "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
+              "A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+              "A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+            ],
+          },
         }
       """
     Then the response should be ACCEPTED
-    And the response should contain a task status endpoint
-    And the task status should have a value of SUCCESS within 6 minutes
+    And the Job should have a status of SUCCESS within 6 minutes
 
   @wip
   Scenario: Delete the last FileTransfer

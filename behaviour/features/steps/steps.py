@@ -164,7 +164,7 @@ def i_can_get_the_x_target_id(context, title) -> None:
 
 
 @given("I can get the last JobFileTransfer ID")  # pylint: disable=not-callable
-def i_can_get_the_last_jobfiletransfer_id(context) -> None:
+def i_can_get_the_last_job_file_transfer_id(context) -> None:
     """Checks a JobFileTransfer record exists and records its ID and relies on the context members: -
     - session_id
     - stack_name
@@ -238,7 +238,7 @@ def i_can_get_the_x_session_project_id(context, title) -> None:
 
 
 @when("I delete the SessionProject")  # pylint: disable=not-callable
-def i_delete_the_sessionproject(context) -> None:
+def i_delete_the_session_project(context) -> None:
     """Deletes a Snapshot relying on the context members: -
     - session_id
     - stack_name
@@ -307,7 +307,7 @@ def i_delete_the_snapshot(context) -> None:
 
 
 @when("I delete the JobFileTransfer")  # pylint: disable=not-callable
-def i_delete_the_jobfiletransfer(context) -> None:
+def i_delete_the_job_file_transfer(context) -> None:
     """Deletes a JobFileTransfer relying on the context members: -
     - session_id
     - stack_name
@@ -328,12 +328,10 @@ def i_delete_the_jobfiletransfer(context) -> None:
     context.status_code = resp.status_code
 
 
-@when(
-    'I create the "{job_name}" JobRequest with the following specification'
-)  # pylint: disable=not-callable
-def i_create_the_x_jobrequest_with_the_following_specification(
-    context, job_name
-) -> None:
+@when(  # pylint: disable=not-callable
+    "I create a JobRequest with the following specification"
+)
+def i_create_a_job_request_with_the_following_specification(context) -> None:
     """Run a given Job, and relies on context members: -
     - stack_name
     - session_id
@@ -359,7 +357,7 @@ def i_create_the_x_jobrequest_with_the_following_specification(
     assert context.text is not None
     spec: Dict[str, Any] = ast.literal_eval(context.text)
 
-    print(f"Initiating JobRequest '{job_name}'...")
+    print("Initiating JobRequest...")
     stack_url = get_stack_url(context.stack_name)
     resp = initiate_job_request(
         base_url=stack_url,
@@ -368,7 +366,7 @@ def i_create_the_x_jobrequest_with_the_following_specification(
         target_id=context.target_id,
         snapshot_id=context.snapshot_id,
         session_project_id=context.session_project_id,
-        job_name=job_name,
+        job_name="Behaviour Test",
         job_spec=spec,
     )
     if resp.status_code != http.HTTPStatus["ACCEPTED"].value:
@@ -378,6 +376,7 @@ def i_create_the_x_jobrequest_with_the_following_specification(
     context.response = resp
     if (
         "application/json" in resp.headers.get("Content-Type", "")
+        and isinstance(resp.json(), dict)
         and "id" in resp.json()
     ):
         job_request_id = resp.json()["id"]
@@ -591,7 +590,7 @@ def i_load_the_file_against_target_access_string_x(context, tas) -> None:
 @when(  # pylint: disable=not-callable
     'I create a new SessionProject with the title "{title}"'
 )
-def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
+def i_create_a_new_session_project_with_the_title_x(context, title) -> None:
     """Relies on context members: -
     - stack_name
     - session_id
@@ -614,6 +613,7 @@ def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
     context.response = resp
     if (
         "application/json" in resp.headers.get("Content-Type", "")
+        and isinstance(resp.json(), dict)
         and "id" in resp.json()
     ):
         session_project_id = resp.json()["id"]
@@ -647,12 +647,14 @@ def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
         session_project_id=context.session_project_id,
         title=title,
     )
-    assert resp.status_code == 201, f"Expected 201, was {resp.status_code}"
+    if resp.status_code != 201:
+        print(f"resp.text={resp.text}")
 
     context.status_code = resp.status_code
     context.response = resp
     if (
         "application/json" in resp.headers.get("Content-Type", "")
+        and isinstance(resp.json(), dict)
         and "id" in resp.json()
     ):
         snapshot_id = resp.json()["id"]
@@ -721,6 +723,7 @@ def i_transfer_the_following_files_to_squonk(context) -> None:
     context.response = resp
     if (
         "application/json" in resp.headers.get("Content-Type", "")
+        and isinstance(resp.json(), dict)
         and "id" in resp.json()
     ):
         job_file_transfer_id = resp.json()["id"]
@@ -784,3 +787,57 @@ def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
     assert (
         data["transfer_status"] == status
     ), f"Expected {status}, got {data['transfer_status']}"
+
+
+@then(  # pylint: disable=not-callable
+    "the Job should have a status of {status_name} within {timeout_m:d} minutes"
+)
+def the_job_should_have_a_status_of_x_within_y_minutes(
+    context, status, timeout_m
+) -> None:
+    """Waits until the known job request ID has the given status.
+    It relies on context members: -
+    - stack_name
+    - session_id
+    - job_request_id
+    """
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "job_request_id")
+
+    start_time = datetime.now()
+    timeout_period = timedelta(minutes=timeout_m)
+
+    print(f"Waiting for job request {context.job_request_id} [{start_time}]...")
+
+    done: bool = False
+    data: Optional[Dict[str, Any]] = None
+    now: datetime = start_time
+    while not done:
+
+        # Get the Job File Transfer status.
+        # The response normally contains the following properties: -
+        # - transfer_status (i.e. SUCCESS, FAILURE)
+        # - transfer_datetime (the time the transfer finished)
+        resp = api_get_request(
+            base_url=get_stack_url(context.stack_name),
+            endpoint=f"/api/job_request/{context.job_request_id}",
+            session_id=context.session_id,
+        )
+        assert resp.status_code == http.HTTPStatus["OK"].value
+
+        assert "results" in resp.json()
+        data = resp.json()["results"][0]
+        if "job_finish_datetime" in data and data["job_finish_datetime"]:
+            print("Job request finished")
+            done = True
+        else:
+            now = datetime.now()
+            assert now - start_time <= timeout_period
+            time.sleep(REQUEST_POLL_PERIOD_S)
+
+    print(f"Finished waiting [{now}]")
+
+    assert "job_status" in data
+    assert data["job_status"] == status, f"Expected {status}, got {data['job_status']}"
