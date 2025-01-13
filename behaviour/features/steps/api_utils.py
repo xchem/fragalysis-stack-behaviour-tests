@@ -135,6 +135,32 @@ def initiate_job_file_transfer(
         return session.post(urljoin(base_url, "/api/job_file_transfer/"), json=data)
 
 
+def initiate_job_request(
+    *,
+    base_url: str,
+    session_id: str,
+    tas_id: int,
+    target_id: int,
+    snapshot_id: int,
+    session_project_id: int,
+    job_name: str,
+    job_spec: str,
+):
+    """Runs a Job in Squonk."""
+    data = {
+        "access": tas_id,
+        "target": target_id,
+        "snapshot": snapshot_id,
+        "session_project": session_project_id,
+        "squonk_job_name": job_name,
+        "squonk_job_spec": job_spec,
+    }
+    print(f"Initiating Squonk file transfer with data: {data}...")
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.post(urljoin(base_url, "/viewer/job_request/"), json=data)
+
+
 # Local functions
 
 
