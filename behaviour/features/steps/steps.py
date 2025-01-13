@@ -35,6 +35,7 @@ from api_utils import (
     create_session_project,
     create_snapshot,
     initiate_job_file_transfer,
+    initiate_job_request,
     upload_target_experiment,
 )
 from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
@@ -51,11 +52,14 @@ from s3_utils import check_bucket, get_object
 _DOWNLOAD_PATH = "."
 
 
-@given("an empty stack using the image tag {image_tag}")  # pylint: disable=not-callable
-def an_empty_stack_using_the_image_tag_x(context, image_tag) -> None:
+@given("an empty stack")  # pylint: disable=not-callable
+def an_empty_stack(context) -> None:
     """Wipe any existing stack content and create a new (empty) one.
     The user can pass in a Dictionary encoded set of extra variables
     via the context.text attribute. This appears as a string.
+
+    The step relies on the image and tag from the Job Template,
+    or the content of any step Doc-string variables.
 
     If successful it sets the following context members: -
     - stack_name (e.g. 'behaviour')
@@ -78,7 +82,6 @@ def an_empty_stack_using_the_image_tag_x(context, image_tag) -> None:
 
     extra_vars: Dict[str, str] = {
         "stack_name": stack_name,
-        "stack_image_tag": image_tag,
         "stack_oidc_rp_client_id": stack_oidc_rp_client_id,
         "stack_oidc_rp_client_secret": get_stack_client_id_secret(),
     }
@@ -158,6 +161,31 @@ def i_can_get_the_x_target_id(context, title) -> None:
     target_id = resp.json()["results"][0]["id"]
     print(f"target_id={target_id}")
     context.target_id = target_id
+
+
+@given("I can get the last JobFileTransfer ID")  # pylint: disable=not-callable
+def i_can_get_the_last_jobfiletransfer_id(context) -> None:
+    """Checks a JobFileTransfer record exists and records its ID and relies on the context members: -
+    - session_id
+    - stack_name
+    Sets the context members: -
+    - job_file_transfer_id"""
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+
+    session_id = context.session_id if hasattr(context, "session_id") else None
+    resp = api_get_request(
+        base_url=get_stack_url(context.stack_name),
+        endpoint="/api/job_file_transfer/",
+        session_id=session_id,
+    )
+    assert resp.status_code == 200
+
+    # We only call this if we expect at least one JobFileTransfer record.
+    assert resp.json()["count"] > 0
+    job_file_transfer_id = resp.json()["results"][-1]["id"]
+    print(f"job_file_transfer_id={job_file_transfer_id}")
+    context.job_file_transfer_id = job_file_transfer_id
 
 
 @given('I can get the "{title}" Project ID')  # pylint: disable=not-callable
@@ -276,6 +304,85 @@ def i_delete_the_snapshot(context) -> None:
         session_id=context.session_id,
     )
     context.status_code = resp.status_code
+
+
+@when("I delete the JobFileTransfer")  # pylint: disable=not-callable
+def i_delete_the_jobfiletransfer(context) -> None:
+    """Deletes a JobFileTransfer relying on the context members: -
+    - session_id
+    - stack_name
+    - job_file_transfer_id
+    And sets: -
+    - status_code"""
+    assert context.failed is False
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "job_file_transfer_id")
+
+    print(f"Deleting JobFileTransfer ID {context.job_file_transfer_id}...")
+    resp = api_delete_request(
+        base_url=get_stack_url(context.stack_name),
+        endpoint=f"/api/job_file_transfer/{context.job_file_transfer_id}",
+        session_id=context.session_id,
+    )
+    context.status_code = resp.status_code
+
+
+@when(
+    'I create the "{job_name}" JobRequest with the following specification'
+)  # pylint: disable=not-callable
+def i_create_the_x_jobrequest_with_the_following_specification(
+    context, job_name
+) -> None:
+    """Run a given Job, and relies on context members: -
+    - stack_name
+    - session_id
+    - project_id
+    - target_id
+    - snapshot_id
+    - session_project_id
+    And sets: -
+    - response
+    - status_code
+    - job_request_id (optional)
+    """
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "project_id")
+    assert hasattr(context, "target_id")
+    assert hasattr(context, "snapshot_id")
+    assert hasattr(context, "session_project_id")
+
+    # We expect a dictionary in the step's doc string.
+    # It will contain a Job specification.
+    assert context.text is not None
+    spec: Dict[str, Any] = ast.literal_eval(context.text)
+
+    print(f"Initiating JobRequest '{job_name}'...")
+    stack_url = get_stack_url(context.stack_name)
+    resp = initiate_job_request(
+        base_url=stack_url,
+        session_id=context.session_id,
+        tas_id=context.project_id,
+        target_id=context.target_id,
+        snapshot_id=context.snapshot_id,
+        session_project_id=context.session_project_id,
+        job_name=job_name,
+        job_spec=spec,
+    )
+    if resp.status_code != http.HTTPStatus["ACCEPTED"].value:
+        print(f"resp.text={resp.text}")
+
+    context.status_code = resp.status_code
+    context.response = resp
+    if (
+        "application/json" in resp.headers.get("Content-Type", "")
+        and "id" in resp.json()
+    ):
+        job_request_id = resp.json()["id"]
+        print(f"Started JobRequest ({job_request_id})")
+        context.job_request_id = job_request_id
 
 
 @then(  # pylint: disable=not-callable
@@ -505,7 +612,10 @@ def i_create_a_new_sessionproject_with_the_title_x(context, title) -> None:
 
     context.status_code = resp.status_code
     context.response = resp
-    if "application/json" in resp.headers.get("Content-Type", ""):
+    if (
+        "application/json" in resp.headers.get("Content-Type", "")
+        and "id" in resp.json()
+    ):
         session_project_id = resp.json()["id"]
         print(f"Created new SessionProject ({session_project_id})")
         context.session_project_id = session_project_id
@@ -541,7 +651,10 @@ def i_create_a_new_snapshot_with_the_title_x(context, title) -> None:
 
     context.status_code = resp.status_code
     context.response = resp
-    if "application/json" in resp.headers.get("Content-Type", ""):
+    if (
+        "application/json" in resp.headers.get("Content-Type", "")
+        and "id" in resp.json()
+    ):
         snapshot_id = resp.json()["id"]
         print(f"Created new Snapshot ({snapshot_id})")
         context.snapshot_id = snapshot_id
@@ -561,7 +674,7 @@ def i_transfer_the_following_files_to_squonk(context) -> None:
     We set the following context members: -
     - response
     - status_code
-    - job_transfer_id
+    - job_transfer_id (optional)
     """
     assert context.failed is False
     assert hasattr(context, "stack_name")
@@ -601,13 +714,18 @@ def i_transfer_the_following_files_to_squonk(context) -> None:
         proteins=proteins,
         compounds=compounds,
     )
-    assert resp.status_code == 200, f"Expected 200, was {resp.status_code}"
+    if resp.status_code != http.HTTPStatus["ACCEPTED"].value:
+        print(f"resp.text={resp.text}")
 
     context.status_code = resp.status_code
     context.response = resp
-    job_file_transfer_id = resp.json()["id"]
-    print(f"Started file transfer ({job_file_transfer_id})")
-    context.job_file_transfer_id = job_file_transfer_id
+    if (
+        "application/json" in resp.headers.get("Content-Type", "")
+        and "id" in resp.json()
+    ):
+        job_file_transfer_id = resp.json()["id"]
+        print(f"Started file transfer ({job_file_transfer_id})")
+        context.job_file_transfer_id = job_file_transfer_id
 
 
 @then(  # pylint: disable=not-callable

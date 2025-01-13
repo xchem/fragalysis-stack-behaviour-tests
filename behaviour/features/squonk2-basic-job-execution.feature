@@ -2,18 +2,40 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
 
   Here we check that a properly configured stack can run Squonk Jobs.
 
-  To significantly reduce execution time the feature has to be treated as one.
-  The job execution only works reliably if the stack is clean, but we do not create
-  a clean stack for each scenario as that would take too long.
+  To significantly reduce execution time the feature has to be treated as sequence
+  that runs from top to bottom. It's not encouraged but it enable us to create
+  much faster tests. The job execution only works reliably if the stack is clean,
+  but we do not create a clean stack for each scenario as that would take too long.
   So the feature starts with a clean stack and scenarios in this feature
   rely on that initial requirement.
 
   Scenario: Create a new stack for Job execution
-    Given an empty stack using the image tag latest
+
+    This initial step can accept a Doc string that represents a Python dictionary.
+    If provided it will be interpreted as an additional set of Ansible variables
+    that will be sent to the launch command for the corresponding Job Template.
+    Any Ansible variables can be defined. For example, to deploy a custom stack image
+    you could provide the following Doc string: -
+
+      """
+      {
+        "stack_image": "alanbchristie/fragalysis-stack",
+        "stack_image_tag": "m2ms-1559-job-execution",
+      }
+      """
+
+    Given an empty stack
+      """
+      {
+        "stack_image": "alanbchristie/fragalysis-stack",
+        "stack_image_tag": "m2ms-1559-job-execution",
+        "stack_disable_restrict_proposals_to_membership": True,
+      }
+      """
     Then the landing page response should be OK
 
   @wip
-  Scenario: A JobOverride must exist
+  Scenario: The front-end needs a JobOverride
     Given I can login
     When I do a GET request at /api/job_override
     Then the length of the list in the response should be 1
@@ -58,8 +80,33 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
         ],
       }
       """
-    Then the response should be OK
+    Then the response should be ACCEPTED
     And the file transfer status should have a value of SUCCESS within 2 minutes
+
+  @wip
+  Scenario: Run fragmenstein-combine on the A71EV2A Snapshot files
+    Given I do not login
+    And I can get the "lb18145-1" Project ID
+    And I can get the "A71EV2A" Target ID
+    And I can get the "Behaviour SessionProject" SessionProject ID
+    And I can get the "Behaviour Snapshot" Snapshot ID
+    When I login
+    And I create the "fragmenstein-combine" JobRequest with the following specification
+      """
+        {
+          "spec": {}
+        }
+      """
+    Then the response should be ACCEPTED
+    And the response should contain a task status endpoint
+    And the task status should have a value of SUCCESS within 6 minutes
+
+  @wip
+  Scenario: Delete the last FileTransfer
+    Given I can login
+    And I can get the last JobFileTransfer ID
+    When I delete the JobFileTransfer
+    Then the response should be NO_CONTENT
 
   Scenario: Delete the Snapshot and SessionProject
     Given I do not login

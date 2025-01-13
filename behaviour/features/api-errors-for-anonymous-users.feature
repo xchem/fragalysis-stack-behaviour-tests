@@ -12,7 +12,7 @@ Feature: Key GET methods need authentication
     BEHAVIOUR_STACK_USERNAME. We just need to specify an image tag like 'latest'.
     The stack should also be functional, by responding correctly on the landing page.
 
-    Given an empty stack using the image tag latest
+    Given an empty stack
     Then the landing page response should be OK
 
   Scenario Template: Some REST GET methods should return 'Not Authorized'

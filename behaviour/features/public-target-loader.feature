@@ -22,7 +22,7 @@ Feature: Verify good Targets can be loaded against the public TAS
     The variables it is expected to define will be passed to the
     corresponding AWX Job Template when it's launched.
 
-    Given an empty stack using the image tag latest
+    Given an empty stack
     Then the landing page response should be OK
 
   Scenario Template: Load public targets
