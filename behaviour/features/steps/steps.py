@@ -188,6 +188,32 @@ def i_can_get_the_last_job_file_transfer_id(context) -> None:
     context.job_file_transfer_id = job_file_transfer_id
 
 
+@given("I can get the last JobFileTransfer SUB_PATH")  # pylint: disable=not-callable
+def i_can_get_the_last_job_file_transfer_sub_path(context) -> None:
+    """Checks a JobFileTransfer record exists and records its sub-path,
+    and relies on the context members: -
+    - session_id
+    - stack_name
+    Sets the context members: -
+    - job_file_transfer_sub_path"""
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+
+    session_id = context.session_id if hasattr(context, "session_id") else None
+    resp = api_get_request(
+        base_url=get_stack_url(context.stack_name),
+        endpoint="/api/job_file_transfer/",
+        session_id=session_id,
+    )
+    assert resp.status_code == 200
+
+    # We only call this if we expect at least one JobFileTransfer record.
+    assert resp.json()["count"] > 0
+    sub_path = resp.json()["results"][-1]["sub_path"]
+    print(f"job_file_transfer_sub_path={sub_path}")
+    context.job_file_transfer_sub_path = sub_path
+
+
 @given('I can get the "{title}" Project ID')  # pylint: disable=not-callable
 def i_can_get_the_x_project_id(context, title) -> None:
     """Checks a Project exists and records its ID and relies on the context members: -
@@ -329,9 +355,9 @@ def i_delete_the_job_file_transfer(context) -> None:
 
 
 @when(  # pylint: disable=not-callable
-    "I create a JobRequest with the following specification"
+    "I run a Squonk Job using the following specification"
 )
-def i_create_a_job_request_with_the_following_specification(context) -> None:
+def i_run_a_job_using_the_following_specification(context) -> None:
     """Run a given Job, and relies on context members: -
     - stack_name
     - session_id
@@ -339,10 +365,10 @@ def i_create_a_job_request_with_the_following_specification(context) -> None:
     - target_id
     - snapshot_id
     - session_project_id
+    - job_file_transfer_sub_path
     And sets: -
     - response
     - status_code
-    - job_request_id (optional)
     """
     assert context.failed is False
     assert hasattr(context, "stack_name")
@@ -351,6 +377,7 @@ def i_create_a_job_request_with_the_following_specification(context) -> None:
     assert hasattr(context, "target_id")
     assert hasattr(context, "snapshot_id")
     assert hasattr(context, "session_project_id")
+    assert hasattr(context, "job_file_transfer_sub_path")
 
     # We expect a dictionary in the step's doc string.
     # It will contain a Job specification.
@@ -368,20 +395,13 @@ def i_create_a_job_request_with_the_following_specification(context) -> None:
         session_project_id=context.session_project_id,
         job_name="Behaviour Test",
         job_spec=spec,
+        job_sub_path=context.job_file_transfer_sub_path,
     )
     if resp.status_code != http.HTTPStatus["ACCEPTED"].value:
         print(f"resp.text={resp.text}")
 
     context.status_code = resp.status_code
     context.response = resp
-    if (
-        "application/json" in resp.headers.get("Content-Type", "")
-        and isinstance(resp.json(), dict)
-        and "id" in resp.json()
-    ):
-        job_request_id = resp.json()["id"]
-        print(f"Started JobRequest ({job_request_id})")
-        context.job_request_id = job_request_id
 
 
 @then(  # pylint: disable=not-callable
@@ -450,24 +470,44 @@ def the_response_should_contain_a_task_status_endpoint(context) -> None:
     context.task_status_endpoint = task_status_endpoint
 
 
+@then("the response should contain a JobRequest ID")  # pylint: disable=not-callable
+def the_response_should_contain_a_job_request_id(context) -> None:
+    """Relies on context members: -
+    - response
+    And Sets the context properties: -
+    - job_request_id
+    """
+    assert context.failed is False
+    assert hasattr(context, "response")
+
+    data: Dict[str, Any] = context.response.json()
+    assert "id" in data
+    context.job_request_id = data["id"]
+
+
 @then(  # pylint: disable=not-callable
-    "the task status should have a value of {status} within {timeout_m:d} minutes"
+    "the task status should have a value of {status} within {timeout:d} {timeout_units}"
 )
-def the_task_should_have_a_value_of_x_within_y_minutes(
-    context, status, timeout_m
+def the_task_should_have_a_value_of_x_within_y_z(
+    context, status, timeout, timeout_units
 ) -> None:
     """Relies on context members: -
     - session_id
     - task_status_endpoint
     """
-    assert timeout_m > 0
-
     assert context.failed is False
     assert hasattr(context, "session_id")
     assert hasattr(context, "task_status_endpoint")
 
+    assert timeout > 0
+
     start_time = datetime.now()
-    timeout_period = timedelta(minutes=timeout_m)
+
+    assert timeout_units in ["minute", "minutes", "second", "seconds"]
+    if timeout_units.startswith("minute"):
+        timeout_period = timedelta(minutes=timeout)
+    else:
+        timeout_period = timedelta(seconds=timeout)
 
     print(f"Waiting for task at {context.task_status_endpoint} [{start_time}]...")
 
@@ -732,10 +772,10 @@ def i_transfer_the_following_files_to_squonk(context) -> None:
 
 
 @then(  # pylint: disable=not-callable
-    "the file transfer status should have a value of {status} within {timeout_m:d} minutes"
+    "the file transfer status should have a value of {status} within {timeout:d} {timeout_units}"
 )
-def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
-    context, status, timeout_m
+def the_file_transfer_status_should_have_a_value_of_x_within_y_z(
+    context, status, timeout, timeout_units
 ) -> None:
     """Waits until the known job transfer ID has the given status.
     It relies on context members: -
@@ -748,8 +788,15 @@ def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
     assert hasattr(context, "session_id")
     assert hasattr(context, "job_file_transfer_id")
 
+    assert timeout > 0
+
     start_time = datetime.now()
-    timeout_period = timedelta(minutes=timeout_m)
+
+    assert timeout_units in ["minute", "minutes", "second", "seconds"]
+    if timeout_units.startswith("minute"):
+        timeout_period = timedelta(minutes=timeout)
+    else:
+        timeout_period = timedelta(seconds=timeout)
 
     print(
         f"Waiting for job file transfer {context.job_file_transfer_id} [{start_time}]..."
@@ -771,11 +818,13 @@ def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
         )
         assert resp.status_code == http.HTTPStatus["OK"].value
 
-        assert "results" in resp.json()
-        data = resp.json()["results"][0]
-        if "transfer_datetime" in data and data["transfer_datetime"]:
-            print("Job file transfer finished")
-            done = True
+        if "application/json" in resp.headers.get("Content-Type", "") and isinstance(
+            resp.json(), dict
+        ):
+            data = resp.json()
+            if "transfer_datetime" in data and data["transfer_datetime"]:
+                print("Job file transfer finished")
+                done = True
         else:
             now = datetime.now()
             assert now - start_time <= timeout_period
@@ -783,6 +832,7 @@ def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
 
     print(f"Finished waiting [{now}]")
 
+    assert isinstance(data, dict)
     assert "transfer_status" in data
     assert (
         data["transfer_status"] == status
@@ -790,24 +840,33 @@ def the_file_transfer_status_should_have_a_value_of_x_within_y_minutes(
 
 
 @then(  # pylint: disable=not-callable
-    "the Job should have a status of {status_name} within {timeout_m:d} minutes"
+    "the JobRequest should have {a_an} {property_name} value of {property_value} within {timeout:d} {timeout_units}"
 )
-def the_job_should_have_a_status_of_x_within_y_minutes(
-    context, status, timeout_m
+def the_job_request_should_have_a_x_value_of_y_within_z_m(
+    context, a_an, property_name, property_value, timeout, timeout_units
 ) -> None:
-    """Waits until the known job request ID has the given status.
+    """Waits until the known job request ID property name has the given value.
     It relies on context members: -
     - stack_name
     - session_id
     - job_request_id
     """
+    del a_an  # Unused
+
     assert context.failed is False
     assert hasattr(context, "stack_name")
     assert hasattr(context, "session_id")
     assert hasattr(context, "job_request_id")
 
+    assert timeout > 0
+
     start_time = datetime.now()
-    timeout_period = timedelta(minutes=timeout_m)
+
+    assert timeout_units in ["minute", "minutes", "second", "seconds"]
+    if timeout_units.startswith("minute"):
+        timeout_period = timedelta(minutes=timeout)
+    else:
+        timeout_period = timedelta(seconds=timeout)
 
     print(f"Waiting for job request {context.job_request_id} [{start_time}]...")
 
@@ -822,22 +881,34 @@ def the_job_should_have_a_status_of_x_within_y_minutes(
         # - transfer_datetime (the time the transfer finished)
         resp = api_get_request(
             base_url=get_stack_url(context.stack_name),
-            endpoint=f"/api/job_request/{context.job_request_id}",
+            endpoint="/viewer/job_request/",
             session_id=context.session_id,
         )
-        assert resp.status_code == http.HTTPStatus["OK"].value
+        assert (
+            resp.status_code == http.HTTPStatus["OK"].value
+        ), f"Expected 200, was {resp.status_code}"
 
+        # Find our JobRequest in the response,
+        # and wait until it has the expected status.
         assert "results" in resp.json()
-        data = resp.json()["results"][0]
-        if "job_finish_datetime" in data and data["job_finish_datetime"]:
-            print("Job request finished")
+        data = next(
+            (
+                jr_response
+                for jr_response in resp.json()["results"]
+                if jr_response["id"] == context.job_request_id
+            ),
+            None,
+        )
+        assert data, f"JobRequest {context.job_request_id} not found"
+        if data[property_name] == property_value:
+            print(f"Job request {property_name} status satisfied")
             done = True
         else:
             now = datetime.now()
-            assert now - start_time <= timeout_period
+            current_value = data[property_name]
+            assert (
+                now - start_time <= timeout_period
+            ), f"Timed out waiting for {property_name} '{property_value}', currently '{current_value}'"
             time.sleep(REQUEST_POLL_PERIOD_S)
 
     print(f"Finished waiting [{now}]")
-
-    assert "job_status" in data
-    assert data["job_status"] == status, f"Expected {status}, got {data['job_status']}"

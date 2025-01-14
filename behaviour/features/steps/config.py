@@ -42,7 +42,7 @@ STACK_CLIENT_ID_SECRET: Optional[str] = _get("STACK_CLIENT_ID_SECRET")
 
 # General constants
 
-REQUEST_POLL_PERIOD_S: int = 4
+REQUEST_POLL_PERIOD_S: int = 2
 REQUEST_TIMEOUT: int = 8
 
 # To create a stack we need to know the names of templates (in the AWX server)

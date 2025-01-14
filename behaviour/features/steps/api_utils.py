@@ -2,8 +2,9 @@
 used primarily to reduce the number of lines in the step file.
 """
 
+import json
 import os
-from typing import Optional
+from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -144,16 +145,23 @@ def initiate_job_request(
     snapshot_id: int,
     session_project_id: int,
     job_name: str,
-    job_spec: str,
+    job_spec: Dict[str, Any],
+    job_sub_path: str,
 ):
     """Runs a Job in Squonk."""
+
+    # Convert the Job specification to a string
+    # and then replace all the occurences of `{SUB_PATH}` with the job_sub_path
+    job_spec_str = json.dumps(job_spec)
+    job_spec_str = job_spec_str.replace("{SUB_PATH}", job_sub_path)
+
     data = {
         "access": tas_id,
         "target": target_id,
         "snapshot": snapshot_id,
         "session_project": session_project_id,
         "squonk_job_name": job_name,
-        "squonk_job_spec": job_spec,
+        "squonk_job_spec": job_spec_str,
     }
     print(f"Initiating Squonk file transfer with data: {data}...")
     with requests.Session() as session:

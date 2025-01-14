@@ -59,7 +59,6 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     When I create a new Snapshot with the title "Behaviour Snapshot"
     Then the response should be CREATED
 
-  @wip
   Scenario: Transfer A71EV2A Snapshot files to Squonk
     Given I do not login
     And I can get the "lb18145-1" Project ID
@@ -71,46 +70,47 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
       {
         "proteins": [
-          "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
         ],
         "compounds": [
-          "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand_LIG.mol",
         ],
       }
       """
     Then the response should be ACCEPTED
-    And the file transfer status should have a value of SUCCESS within 2 minutes
+    And the file transfer status should have a value of SUCCESS within 30 seconds
 
-  @wip
   Scenario: Run fragmenstein-combine on the A71EV2A Snapshot files
     Given I do not login
     And I can get the "lb18145-1" Project ID
     And I can get the "A71EV2A" Target ID
     And I can get the "Behaviour SessionProject" SessionProject ID
     And I can get the "Behaviour Snapshot" Snapshot ID
+    And I can get the last JobFileTransfer SUB_PATH
     When I login
-    And I create a JobRequest with the following specification
+    And I run a Squonk Job using the following specification
       """
         {
           "collection": "fragmenstein",
           "job": "fragmenstein-combine",
           "version": "1.0.0",
           "variables": {
-            "protein": "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+            "outfile": "merged.sdf",
+            "count": 1,
+            "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
             "fragments": [
-              "A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_ligand.mol",
-              "A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-              "A71EV2A-x0269_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+              "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
+              "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand_LIG.mol",
             ],
           },
         }
       """
     Then the response should be ACCEPTED
-    And the Job should have a status of SUCCESS within 6 minutes
+    And the response should contain a JobRequest ID
+    And the JobRequest should have a job_status value of SUCCESS within 1 minute
+#    And the JobRequest should have an upload_status value of SUCCESS within 20 seconds
 
-  @wip
   Scenario: Delete the last FileTransfer
     Given I can login
     And I can get the last JobFileTransfer ID

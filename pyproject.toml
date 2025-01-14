@@ -27,6 +27,7 @@ pylint = "^3.3.3"
 disable = [
     "line-too-long",
     "too-many-arguments",
+    "too-many-positional-arguments",
 ]
 
 [build-system]
