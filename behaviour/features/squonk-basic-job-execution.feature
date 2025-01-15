@@ -89,26 +89,21 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And I can get the "Behaviour Snapshot" Snapshot ID
     And I can get the last JobFileTransfer SUB_PATH
     When I login
-    And I run a Squonk Job using the following specification
+    And I run fragmenstein-combine with the following variables
       """
-        {
-          "collection": "fragmenstein",
-          "job": "fragmenstein-combine",
-          "version": "1.0.0",
-          "variables": {
-            "outfile": "merged.sdf",
-            "count": 1,
-            "smilesFieldName": "original SMILES",
-            "fragIdField": "_Name",
-            "proteinFieldName": "ref_pdb",
-            "proteinFieldValue": "A0152b",
-            "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
-            "fragments": [
-              "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-              "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand.mol",
-            ],
-          },
-        }
+      {
+        "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+        "fragments": [
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand.mol",
+        ],
+        "outfile": "merged.sdf",
+        "count": 1,
+        "smilesFieldName": "original SMILES",
+        "fragIdField": "_Name",
+        "proteinFieldName": "ref_pdb",
+        "proteinFieldValue": "A0152b",
+      }
       """
     Then the response should be ACCEPTED
     And the response should contain a JobRequest ID

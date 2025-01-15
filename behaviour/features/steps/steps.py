@@ -354,10 +354,8 @@ def i_delete_the_job_file_transfer(context) -> None:
     context.status_code = resp.status_code
 
 
-@when(  # pylint: disable=not-callable
-    "I run a Squonk Job using the following specification"
-)
-def i_run_a_job_using_the_following_specification(context) -> None:
+@when("I run {job_name} with the following variables")  # pylint: disable=not-callable
+def i_run_x_with_the_following_variables(context, job_name) -> None:
     """Run a given Job replacing each occurrence of {SUB_PATH} in the Job specification
     with the sub-path used by the file transfer logic. It relies on context members: -
     - stack_name
@@ -381,9 +379,15 @@ def i_run_a_job_using_the_following_specification(context) -> None:
     assert hasattr(context, "job_file_transfer_sub_path")
 
     # We expect a dictionary in the step's doc string.
-    # It will contain a Job specification.
+    # It will contain the Job variables.
     assert context.text is not None
-    spec: Dict[str, Any] = ast.literal_eval(context.text)
+    variables: Dict[str, Any] = ast.literal_eval(context.text)
+    spec = {
+        "collection": "fragmenstein",
+        "job": job_name,
+        "version": "1.0.0",
+        "variables": variables,
+    }
 
     print("Initiating JobRequest...")
     stack_url = get_stack_url(context.stack_name)
