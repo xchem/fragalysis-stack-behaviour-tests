@@ -47,6 +47,6 @@ Feature: Verify good Targets can be loaded against the public TAS
     Then the length of the list in the response should be 1
 
     Examples: Experiment files and Targets
-    | tgz                                 | target    | upload timeout | upload count |
-    | lb32627-66_v2.2_upload_1_2024-12_09 | A71EV2A   | 6  | 1 |
-    | lb32633-6_v2.2_upload_1_2024-11-22  | CHIKV_Mac | 14 | 2 |
+    | tgz | target | upload timeout | upload count |
+    | lb32627-66_v2_upload_1_2024-12-09_2025-01-15 | A71EV2A   |  6 | 1 |
+    | lb32633-6_v2.2_upload_1_2024-11-22           | CHIKV_Mac | 14 | 2 |
