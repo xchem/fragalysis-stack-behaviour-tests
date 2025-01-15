@@ -358,7 +358,8 @@ def i_delete_the_job_file_transfer(context) -> None:
     "I run a Squonk Job using the following specification"
 )
 def i_run_a_job_using_the_following_specification(context) -> None:
-    """Run a given Job, and relies on context members: -
+    """Run a given Job replacing each occurrence of {SUB_PATH} in the Job specification
+    with the sub-path used by the file transfer logic. It relies on context members: -
     - stack_name
     - session_id
     - project_id
