@@ -98,6 +98,10 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
           "variables": {
             "outfile": "merged.sdf",
             "count": 1,
+            "smilesFieldName": "original SMILES",
+            "fragIdField": "_Name",
+            "proteinFieldName": "ref_pdb",
+            "proteinFieldValue": "A71EV2A",
             "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
             "fragments": [
               "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand_LIG.mol",
@@ -109,7 +113,9 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     Then the response should be ACCEPTED
     And the response should contain a JobRequest ID
     And the JobRequest should have a job_status value of SUCCESS within 1 minute
-#    And the JobRequest should have an upload_status value of SUCCESS within 20 seconds
+    And the JobRequest should have an upload_status value of SUCCESS within 20 seconds
+    When I do a GET request at /api/compound-sets
+    Then the length of the list in the response should be 1
 
   Scenario: Delete the last FileTransfer
     Given I can login
