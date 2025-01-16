@@ -964,9 +964,9 @@ def the_job_request_should_have_a_x_value_of_y_within_z_m(
 
 
 @when(  # pylint: disable=not-callable
-    "I provide the following JobOverride path from {repo_name}"
+    "I provide the following JobOverride file from {repo_name}"
 )
-def i_provide_the_following_job_override_path_from_x(context, repo_name) -> None:
+def i_provide_the_following_job_override_file_from_x(context, repo_name) -> None:
     """The user is expected to provide a path to a RAW file in a GitHub repository.
     The path should not be prefixed with '/'. Typically it might
     be something like this for the production branch of the repository:
@@ -1011,3 +1011,33 @@ def i_provide_the_following_job_override_path_from_x(context, repo_name) -> None
 
     context.status_code = resp.status_code
     context.response = resp
+
+
+@when(  # pylint: disable=not-callable
+    "I get the JobConfig {collection}|{job}|{version}"
+)
+def i_get_the_job_config_x_y_z(context, collection, job, version) -> None:
+    """Get the JobConfig from the stack and relies on context members: -
+    - session_id
+    - stack_name
+    Sets the following context members: -
+    - response
+    - status_code
+    """
+    assert context.failed is False
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "stack_name")
+
+    params = {"job_collection": collection, "job_name": job, "job_version": version}
+
+    stack_url = get_stack_url(context.stack_name)
+    print(f"Getting JobConfig (params={params})...")
+    resp = api_get_request(
+        base_url=stack_url,
+        endpoint="/api/job_config/",
+        session_id=context.session_id,
+        params=params,
+    )
+
+    context.response = resp
+    context.status_code = resp.status_code

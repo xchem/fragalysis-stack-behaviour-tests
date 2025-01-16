@@ -38,13 +38,26 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     Given I can login as django admin
     When I do a GET request at /api/job_override
     And remember the count
-    And I provide the following JobOverride path from xchem/fragalysis-backend
+    And I provide the following JobOverride file from xchem/fragalysis-backend
       """
         production/viewer/squonk/day-1-job-override.json
       """
     Then the response should be CREATED
     When I do a GET request at /api/job_override
     Then the count must be one larger than the remembered count
+
+  Scenario Template: Fragmenstein Jobs must exist
+    Given I can login
+    When I get the JobConfig fragmenstein|<job>|1.0.0
+    Then the response should be OK
+
+    Examples: JobConfigs
+      | job |
+      | fragmenstein-combine               |
+      | fragmenstein-combine-multi         |
+      | fragmenstein-combine-multi-scoring |
+      | fragmenstein-place-file            |
+      | fragmenstein-place-string          |
 
   Scenario: Load A71EV2A Target data against lb18145-1
     Given I do not login
