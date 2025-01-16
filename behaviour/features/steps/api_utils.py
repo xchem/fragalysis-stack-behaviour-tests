@@ -46,6 +46,22 @@ def api_delete_request(
         return session.delete(urljoin(base_url, endpoint))
 
 
+def api_post_request(
+    *,
+    base_url: str,
+    endpoint: str,
+    session_id: Optional[str],
+    data: Optional[Dict[str, Any]],
+) -> Response:
+    """Calls the POST REST endpoint using an optional session ID and data payload.
+    The base url is the root of the apu, i.e. https://example.com. The method is the
+    API method to call, i.e. /api/job_config and the session ID is the session ID to
+    use for the call."""
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.post(urljoin(base_url, endpoint), json=data)
+
+
 def create_session_project(
     *, base_url: str, session_id: str, target_id: int, title: str
 ) -> Response:
