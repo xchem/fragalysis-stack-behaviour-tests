@@ -26,6 +26,11 @@ AWX_HOST: Optional[str] = _get("AWX_HOST", "awx.xchem-dev.diamond.ac.uk")
 AWX_USERNAME: Optional[str] = _get("AWX_USERNAME")
 AWX_PASSWORD: Optional[str] = _get("AWX_PASSWORD")
 
+# The password for the Django superuser
+DJANGO_SUPERUSER_PASSWORD: Optional[str] = _get(
+    "DJANGO_SUPERUSER_USERNAME", "ocherous-autotomy-zig"
+)
+
 # Required S3 config
 # The key must provide read access to the chosen bucket
 S3_ACCESS_KEY_ID = _get("AWS_ACCESS_KEY_ID")
