@@ -32,6 +32,7 @@ import requests
 from api_utils import (
     api_delete_request,
     api_get_request,
+    api_post_request,
     create_session_project,
     create_snapshot,
     initiate_job_file_transfer,
@@ -44,6 +45,7 @@ from browser_utils import get_stack_client_id_secret, get_stack_name, login
 from config import (
     AWX_STACK_CREATE_JOB_TEMPLATE,
     AWX_STACK_WIPE_JOB_TEMPLATE,
+    DJANGO_SUPERUSER_PASSWORD,
     REQUEST_POLL_PERIOD_S,
     REQUEST_TIMEOUT,
 )
@@ -80,7 +82,9 @@ def an_empty_stack(context) -> None:
         f"fragalysis-{get_stack_username().lower()}-{stack_name}-xchem-dev"
     )
 
+    assert DJANGO_SUPERUSER_PASSWORD
     extra_vars: Dict[str, str] = {
+        "stack_django_superuser_password": DJANGO_SUPERUSER_PASSWORD,
         "stack_name": stack_name,
         "stack_oidc_rp_client_id": stack_oidc_rp_client_id,
         "stack_oidc_rp_client_secret": get_stack_client_id_secret(),
@@ -109,7 +113,7 @@ def an_empty_stack(context) -> None:
 
 @given("I can login")  # pylint: disable=not-callable
 @when("I login")  # pylint: disable=not-callable
-def do_login(context) -> None:
+def i_can_login(context) -> None:
     """Sets the context members: -
     - stack_name
     - session_id"""
@@ -118,6 +122,17 @@ def do_login(context) -> None:
     context.stack_name = get_stack_name()
     context.session_id = login(get_stack_url(context.stack_name))
     assert context.session_id
+
+
+@given("I can login as django admin")  # pylint: disable=not-callable
+def i_can_login_as_django_admin(context) -> None:
+    """Sets the context members: -
+    - stack_name
+    """
+    assert context.failed is False
+
+    context.stack_name = get_stack_name()
+    context.session_id = login(get_stack_url(context.stack_name), login_type="django")
 
 
 @given("I do not login")  # pylint: disable=not-callable
@@ -442,9 +457,9 @@ def remember_the_count(context) -> None:
     context.remembered_response_count = context.response_count
 
 
-@then(
+@then(  # pylint: disable=not-callable
     "the count must be one larger than the remembered count"
-)  # pylint: disable=not-callable
+)
 def the_count_must_be_one_larger_than_the_remembered_count(context) -> None:
     """Relies on the context members: -
     - response_count
@@ -946,3 +961,53 @@ def the_job_request_should_have_a_x_value_of_y_within_z_m(
             time.sleep(REQUEST_POLL_PERIOD_S)
 
     print(f"Finished waiting [{now}]")
+
+
+@when(  # pylint: disable=not-callable
+    "I provide the following JobOverride path from {repo_name}"
+)
+def i_provide_the_following_job_override_path_from_x(context, repo_name) -> None:
+    """The user is expected to provide a path to a RAW file in a GitHub repository.
+    The path should not be prefixed with '/'. Typically it might
+    be something like this for the production branch of the repository:
+    "production/viewer/squonk/day-1-job-override.json".
+    We prefix with the repo name and 'refs/heads/'.
+    Relies on context members: -
+    - session_id
+    - stack_name
+    We set the following context members: -
+    - response
+    - status_code
+    """
+    assert context.failed is False
+    assert hasattr(context, "session_id")
+    assert hasattr(context, "stack_name")
+
+    # We expect a path to an over-ride file in the step's doc string.
+    # We will prefix it with github and the repo name.
+    assert context.text is not None
+    job_override_path: str = context.text.strip()
+    assert job_override_path
+    assert not job_override_path.startswith("/")
+
+    # Get the JobOverride text from the (GitHub) repository...
+    url = f"https://raw.githubusercontent.com/{repo_name}/refs/heads/"
+    resp = api_get_request(
+        base_url=url,
+        endpoint=job_override_path,
+        session_id=context.session_id,
+    )
+    print(f"Got status_code ({resp.status_code})")
+    assert resp.status_code == http.HTTPStatus["OK"].value
+
+    # Now POST the JobOverride text to the stack...
+    stack_url = get_stack_url(context.stack_name)
+    resp = api_post_request(
+        base_url=stack_url,
+        endpoint="/api/job_override/",
+        session_id=context.session_id,
+        data={"override": resp.text},
+    )
+
+    context.status_code = resp.status_code
+    context.response = resp

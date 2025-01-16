@@ -34,11 +34,17 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
     Then the landing page response should be OK
 
-  @wip
-  Scenario: The front-end needs a JobOverride
-    Given I can login
+  Scenario: Create a JobOverride
+    Given I can login as django admin
     When I do a GET request at /api/job_override
-    Then the length of the list in the response should be 1
+    And remember the count
+    And I provide the following JobOverride path from xchem/fragalysis-backend
+      """
+        production/viewer/squonk/day-1-job-override.json
+      """
+    Then the response should be CREATED
+    When I do a GET request at /api/job_override
+    Then the count must be one larger than the remembered count
 
   Scenario: Load A71EV2A Target data against lb18145-1
     Given I do not login
