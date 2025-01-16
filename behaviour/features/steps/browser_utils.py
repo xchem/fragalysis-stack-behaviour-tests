@@ -7,6 +7,7 @@ from html import unescape
 
 from awx_utils import get_stack_url
 from config import (
+    DJANGO_SUPERUSER_PASSWORD,
     STACK_CLIENT_ID_SECRET,
     STACK_NAME,
     STACK_PASSWORD,
@@ -34,22 +35,39 @@ def get_stack_name() -> str:
     return STACK_NAME.lower()
 
 
-def login(host_url: str) -> str:
+def login(host_url: str, login_type: str = "cas") -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
-    given a host url(i.e. https://example.com)"""
+    given a host url(i.e. https://example.com)."""
     if not STACK_USERNAME:
         raise ValueError(get_env_name("STACK_USERNAME") + " is not set")
     if not STACK_PASSWORD:
         raise ValueError(get_env_name("STACK_PASSWORD") + " is not set")
 
+    assert login_type in {"cas", "django"}
+
+    session_id_value: str = ""
     with sync_playwright() as spw:
-        session_id_value: str = _run_login_logic_for_cas(
-            spw,
-            host_url=host_url,
-            user=STACK_USERNAME,
-            password=STACK_PASSWORD,
-        )
+        if login_type == "cas":
+            session_id_value = _run_login_logic_for_cas(
+                spw,
+                host_url=host_url,
+                user=STACK_USERNAME,
+                password=STACK_PASSWORD,
+            )
+        elif login_type == "django":
+            session_id_value = _run_login_logic_for_django(
+                spw,
+                host_url=host_url,
+                user="admin",
+                password=DJANGO_SUPERUSER_PASSWORD,
+            )
+        else:
+            raise ValueError(f"Unknown login type: {login_type}")
+
     return session_id_value
+
+
+# Local functions --------------------------------------------------------------
 
 
 def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) -> str:
@@ -73,6 +91,33 @@ def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) 
     expect(page.get_by_text("You're logged in")).to_be_visible()
 
     print("We're logged in!")
+
+    print("Getting Session ID...")
+    resp = page.goto(f"{host_url}/api/token")
+    raw_text = unescape(resp.text())
+    session_id_value: str = _RE_SESSION_ID.search(raw_text).group(1)
+    print(f"Got Session ID ({session_id_value})")
+
+    browser.close()
+
+    return session_id_value
+
+
+def _run_login_logic_for_django(
+    spw: sync_playwright, *, host_url, user, password
+) -> str:
+    """Playwright logic to manage a login via the Django admin panel.
+    There is no session here."""
+    browser = spw.chromium.launch()
+    page = browser.new_page()
+
+    login_url = f"{host_url}/admin/login"
+    print(f"Logging in using Django admin to '{login_url}' (as '{user}')...")
+
+    page.goto(login_url)
+    page.get_by_role("textbox", name="Username:").fill(user)
+    page.get_by_role("textbox", name="Password:").fill(password)
+    page.get_by_role("button", name="Log in").click()
 
     print("Getting Session ID...")
     resp = page.goto(f"{host_url}/api/token")
