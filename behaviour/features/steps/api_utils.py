@@ -23,7 +23,11 @@ USER_AGENT: str = (
 
 
 def api_get_request(
-    *, base_url: str, endpoint: str, session_id: Optional[str]
+    *,
+    base_url: str,
+    endpoint: str,
+    session_id: Optional[str],
+    params: Optional[Dict[str, Any]] = None,
 ) -> Response:
     """Calls the GET REST endpoint using an optional session ID.
     The base url is the root of the apu, i.e. https://example.com. The method is the
@@ -31,7 +35,7 @@ def api_get_request(
     use for the call."""
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.get(urljoin(base_url, endpoint))
+        return session.get(urljoin(base_url, endpoint), params=params)
 
 
 def api_delete_request(
@@ -184,6 +188,27 @@ def initiate_job_request(
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
         return session.post(urljoin(base_url, "/viewer/job_request/"), json=data)
+
+
+def get_job_config(
+    *,
+    base_url: str,
+    session_id: str,
+    job_collection: str,
+    job_name: str,
+    job_version: str,
+):
+    """Gets a JobConfig."""
+
+    params = {
+        "job_collection": job_collection,
+        "job_name": job_name,
+        "job_version": job_version,
+    }
+    print(f"Getting JobConfig with params: {params}...")
+    with requests.Session() as session:
+        _prepare_session(session, base_url=base_url, session_id=session_id)
+        return session.get(urljoin(base_url, "/viewer/job_request/"), params=params)
 
 
 # Local functions
