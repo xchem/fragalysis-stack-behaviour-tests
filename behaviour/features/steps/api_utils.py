@@ -1,4 +1,5 @@
-"""A collection of functions to simplify access to the stack's API,
+"""
+A collection of functions to simplify access to the stack's REST API,
 used primarily to reduce the number of lines in the step file.
 """
 
@@ -151,7 +152,7 @@ def initiate_job_request(
     """Runs a Job in Squonk."""
 
     # Convert the Job specification to a string
-    # and then replace all the occurences of `{SUB_PATH}` with the job_sub_path
+    # and then replace all the occurrences of `{SUB_PATH}` with the job_sub_path
     job_spec_str = json.dumps(job_spec)
     job_spec_str = job_spec_str.replace("{SUB_PATH}", job_sub_path)
 

@@ -1,4 +1,5 @@
-"""Common config for the behaviour test steps.
+"""
+Common config for the behaviour test steps.
 Essentially all the environment variables we need to run the tests.
 """
 

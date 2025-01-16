@@ -1,4 +1,7 @@
-"""AWX utilities for steps."""
+"""
+AWX utilities for steps.
+Logic that allows us to run AWX Job Templates (to wipe and create stacks).
+"""
 
 import os
 import shlex

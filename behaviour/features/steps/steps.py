@@ -354,8 +354,10 @@ def i_delete_the_job_file_transfer(context) -> None:
     context.status_code = resp.status_code
 
 
-@when("I run {job_name} with the following variables")  # pylint: disable=not-callable
-def i_run_x_with_the_following_variables(context, job_name) -> None:
+@when(  # pylint: disable=not-callable
+    'I run "{job_name}" from the "{collection_name}" collection with the following variables'
+)
+def i_run_x_with_the_following_variables(context, job_name, collection_name) -> None:
     """Run a given Job replacing each occurrence of {SUB_PATH} in the Job specification
     with the sub-path used by the file transfer logic. It relies on context members: -
     - stack_name
@@ -383,7 +385,7 @@ def i_run_x_with_the_following_variables(context, job_name) -> None:
     assert context.text is not None
     variables: Dict[str, Any] = ast.literal_eval(context.text)
     spec = {
-        "collection": "fragmenstein",
+        "collection": collection_name,
         "job": job_name,
         "version": "1.0.0",
         "variables": variables,
@@ -425,6 +427,33 @@ def the_landing_page_response_should_be_x(context, status_code_name) -> None:
     if resp.status_code != expected_code:
         print(f"Expected status code {expected_code}, got {resp.status_code}")
         assert resp.status_code == expected_code
+
+
+@when("remember the count")  # pylint: disable=not-callable
+def remember_the_count(context) -> None:
+    """Relies on context members: -
+    - response_count
+    Sets the following context members: -
+    - remembered_response_count
+    """
+    assert context.failed is False
+    assert hasattr(context, "response_count")
+
+    context.remembered_response_count = context.response_count
+
+
+@then(
+    "the count must be one larger than the remembered count"
+)  # pylint: disable=not-callable
+def the_count_must_be_one_larger_than_the_remembered_count(context) -> None:
+    """Relies on the context members: -
+    - response_count
+    - remembered_response_count"""
+    assert context.failed is False
+    assert hasattr(context, "response_count")
+    assert hasattr(context, "remembered_response_count")
+
+    assert context.response_count == context.remembered_response_count + 1
 
 
 @then(  # pylint: disable=not-callable

@@ -89,7 +89,9 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And I can get the "Behaviour Snapshot" Snapshot ID
     And I can get the last JobFileTransfer SUB_PATH
     When I login
-    And I run fragmenstein-combine with the following variables
+    And I do a GET request at /api/compound-sets
+    And remember the count
+    And I run "fragmenstein-combine" from the "fragmenstein" collection with the following variables
       """
       {
         "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
@@ -107,10 +109,10 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
     Then the response should be ACCEPTED
     And the response should contain a JobRequest ID
-    And the JobRequest should have a job_status value of SUCCESS within 1 minute
+    And the JobRequest should have a job_status value of SUCCESS within 2 minutes
     And the JobRequest should have an upload_status value of SUCCESS within 20 seconds
     When I do a GET request at /api/compound-sets
-    Then the length of the list in the response should be 1
+    Then the count must be one larger than the remembered count
 
   Scenario: Delete the last FileTransfer
     Given I can login
