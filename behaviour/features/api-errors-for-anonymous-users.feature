@@ -27,6 +27,7 @@ Feature: Key GET methods need authentication
     Examples: Restricted GET endpoints
       | method                            |
       | /api/job_config                   |
+      | /api/job_request                  |
       | /api/compound-identifier-types    |
       | /api/token                        |
 

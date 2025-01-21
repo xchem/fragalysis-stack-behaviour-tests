@@ -614,7 +614,11 @@ def i_do_a_x_request_at_y(context, method, endpoint) -> None:
     resp = requests.request(method, stack_url + endpoint, timeout=REQUEST_TIMEOUT)
     context.response = resp
     context.status_code = resp.status_code
-    if isinstance(resp.json(), dict) and "count" in resp.json():
+    if (
+        "application/json" in resp.headers.get("Content-Type", "")
+        and isinstance(resp.json(), dict)
+        and "count" in resp.json()
+    ):
         context.response_count = resp.json().get("count")
 
 
