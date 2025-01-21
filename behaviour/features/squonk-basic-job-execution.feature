@@ -89,11 +89,11 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
       {
         "proteins": [
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977%2BA%2B202%2B1_apo-desolv.pdb",
         ],
         "compounds": [
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977%2BA%2B202%2B1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_201_1_A71EV2A-x0488%2BA%2B147%2B1_ligand.mol",
         ],
       }
       """
@@ -113,10 +113,10 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And I run "fragmenstein-combine" from the "fragmenstein" collection with the following variables
       """
       {
-        "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977+A+202+1_apo-desolv.pdb",
+        "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977%2BA%2B202%2B1_apo-desolv.pdb",
         "fragments": [
-          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977+A+202+1_ligand.mol",
-          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488+A+147+1_ligand.mol",
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977%2BA%2B202%2B1_ligand.mol",
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488%2BA%2B147%2B1_ligand.mol",
         ],
         "outfile": "merged.sdf",
         "count": 1,

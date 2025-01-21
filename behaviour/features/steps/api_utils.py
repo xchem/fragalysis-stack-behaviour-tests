@@ -187,7 +187,7 @@ def initiate_job_request(
     print(f"Initiating Squonk file transfer with data: {data}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, "/viewer/job_request/"), json=data)
+        return session.post(urljoin(base_url, "/api/job_request/"), json=data)
 
 
 def get_job_config(
@@ -208,7 +208,7 @@ def get_job_config(
     print(f"Getting JobConfig with params: {params}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.get(urljoin(base_url, "/viewer/job_request/"), params=params)
+        return session.get(urljoin(base_url, "/api/job_config/"), params=params)
 
 
 # Local functions

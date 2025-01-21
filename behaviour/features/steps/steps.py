@@ -930,7 +930,7 @@ def the_job_request_should_have_a_x_value_of_y_within_z_m(
         # - transfer_datetime (the time the transfer finished)
         resp = api_get_request(
             base_url=get_stack_url(context.stack_name),
-            endpoint="/viewer/job_request/",
+            endpoint="/api/job_request/",
             session_id=context.session_id,
         )
         assert (
