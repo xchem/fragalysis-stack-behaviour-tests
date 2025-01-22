@@ -55,7 +55,7 @@ def api_post_request(
     base_url: str,
     endpoint: str,
     session_id: Optional[str],
-    data: Optional[Dict[str, Any]],
+    data: Optional[Dict[str, Any]] = None,
 ) -> Response:
     """Calls the POST REST endpoint using an optional session ID and data payload.
     The base url is the root of the apu, i.e. https://example.com. The method is the

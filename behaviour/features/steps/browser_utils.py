@@ -43,7 +43,7 @@ def login(host_url: str, login_type: str = "cas") -> str:
     if not STACK_PASSWORD:
         raise ValueError(get_env_name("STACK_PASSWORD") + " is not set")
 
-    assert login_type in {"cas", "django"}
+    assert login_type in {"cas", "superuser"}
 
     session_id_value: str = ""
     with sync_playwright() as spw:
@@ -54,8 +54,8 @@ def login(host_url: str, login_type: str = "cas") -> str:
                 user=STACK_USERNAME,
                 password=STACK_PASSWORD,
             )
-        elif login_type == "django":
-            session_id_value = _run_login_logic_for_django(
+        elif login_type == "superuser":
+            session_id_value = _run_login_logic_for_superuser(
                 spw,
                 host_url=host_url,
                 user="admin",
@@ -103,7 +103,7 @@ def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) 
     return session_id_value
 
 
-def _run_login_logic_for_django(
+def _run_login_logic_for_superuser(
     spw: sync_playwright, *, host_url, user, password
 ) -> str:
     """Playwright logic to manage a login via the Django admin panel.

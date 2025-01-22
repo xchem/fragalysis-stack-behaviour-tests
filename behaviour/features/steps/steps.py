@@ -124,15 +124,18 @@ def i_can_login(context) -> None:
     assert context.session_id
 
 
-@given("I can login as django admin")  # pylint: disable=not-callable
-def i_can_login_as_django_admin(context) -> None:
-    """Sets the context members: -
+@given("I can login as a superuser")  # pylint: disable=not-callable
+def i_can_login_as_a_superuser(context) -> None:
+    """The super user is the django admin user.
+    Sets the context members: -
     - stack_name
     """
     assert context.failed is False
 
     context.stack_name = get_stack_name()
-    context.session_id = login(get_stack_url(context.stack_name), login_type="django")
+    context.session_id = login(
+        get_stack_url(context.stack_name), login_type="superuser"
+    )
 
 
 @given("I do not login")  # pylint: disable=not-callable
@@ -611,6 +614,11 @@ def i_do_a_x_request_at_y(context, method, endpoint) -> None:
     stack_url = get_stack_url(context.stack_name)
     print(f"stack_url={stack_url}")
 
+    # Django POST needs a trailing '/'.
+    # Add one in case the user forgot
+    if method == "POST" and not endpoint.endswith("/"):
+        endpoint += "/"
+
     resp = requests.request(method, stack_url + endpoint, timeout=REQUEST_TIMEOUT)
     context.response = resp
     context.status_code = resp.status_code
@@ -1041,6 +1049,31 @@ def i_get_the_job_config_x_y_z(context, collection, job, version) -> None:
         endpoint="/api/job_config/",
         session_id=context.session_id,
         params=params,
+    )
+
+    context.response = resp
+    context.status_code = resp.status_code
+
+
+@when("I reset the stack")  # pylint: disable=not-callable
+def i_reset_the_stack(context) -> None:
+    """Does a POST at /api/reset, relying on: -
+    - session_id (optional)
+    - stack_name
+    Sets the following context members: -
+    - response
+    - status_code
+    """
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+
+    stack_url = get_stack_url(context.stack_name)
+    session_id = context.session_id if hasattr(context, "session_id") else None
+    print("Trying to reset the stack...")
+    resp = api_post_request(
+        base_url=stack_url,
+        endpoint="/api/reset/",
+        session_id=session_id,
     )
 
     context.response = resp

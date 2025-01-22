@@ -35,7 +35,7 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     Then the landing page response should be OK
 
   Scenario: Create a JobOverride
-    Given I can login as django admin
+    Given I can login as a superuser
     When I do a GET request at /api/job_override
     And remember the count
     And I provide the following JobOverride file from xchem/fragalysis-backend
