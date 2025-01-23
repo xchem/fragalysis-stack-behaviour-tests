@@ -24,11 +24,9 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       }
       """
 
-    Given an empty stack
+    Given a new stack using the image tag "latest"
       """
       {
-        "stack_image": "alanbchristie/fragalysis-stack",
-        "stack_image_tag": "m2ms-1559-job-execution",
         "stack_disable_restrict_proposals_to_membership": True,
       }
       """
@@ -79,6 +77,11 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     Then the response should be CREATED
 
   Scenario: Transfer A71EV2A Snapshot files to Squonk
+
+    This scenario is a reproduction of the test run by Boris
+    at the Diamond 'hackathon' (January 2025), with backend code
+    that's in the 'latest' container image.
+
     Given I do not login
     And I can get the "lb18145-1" Project ID
     And I can get the "A71EV2A" Target ID
@@ -89,11 +92,14 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
       """
       {
         "proteins": [
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0152/A71EV2A-x0152_A_201_1_A71EV2A-x3977%2BA%2B202%2B1_apo-desolv.pdb",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0310/A71EV2A-x0310_A_147_1_A71EV2A-x0526%2BA%2B147%2B1_apo-desolv.pdb",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0207/A71EV2A-x0207_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_apo-desolv.pdb",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0237/A71EV2A-x0237_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_apo-desolv.pdb",
         ],
         "compounds": [
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_147_1_A71EV2A-x3977%2BA%2B202%2B1_ligand.mol",
-          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0202/A71EV2A-x0202_A_201_1_A71EV2A-x0488%2BA%2B147%2B1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0310/A71EV2A-x0310_A_147_1_A71EV2A-x0526%2BA%2B147%2B1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0207/A71EV2A-x0207_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_ligand.mol",
+          "target_loader_data/A71EV2A_lb18145-1/upload_1/aligned_files/A71EV2A-x0237/A71EV2A-x0237_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_ligand.mol",
         ],
       }
       """
@@ -101,6 +107,11 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And the file transfer status should have a value of SUCCESS within 30 seconds
 
   Scenario: Run fragmenstein-combine on the A71EV2A Snapshot files
+
+    This scenario is a reproduction of the test run by Boris
+    at the Diamond 'hackathon' (January 2025), with backend code
+    that's in the 'latest' container image.
+
     Given I do not login
     And I can get the "lb18145-1" Project ID
     And I can get the "A71EV2A" Target ID
@@ -113,17 +124,18 @@ Feature: Verify a fragalysis stack can run Squonk Jobs against public Targets
     And I run "fragmenstein-combine" from the "fragmenstein" collection with the following variables
       """
       {
-        "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0152_A_201_1_A71EV2A-x3977%2BA%2B202%2B1_apo-desolv.pdb",
+        "protein": "fragalysis-files/{SUB_PATH}/A71EV2A-x0207_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_apo-desolv.pdb",
         "fragments": [
-          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_147_1_A71EV2A-x3977%2BA%2B202%2B1_ligand.mol",
-          "fragalysis-files/{SUB_PATH}/A71EV2A-x0202_A_201_1_A71EV2A-x0488%2BA%2B147%2B1_ligand.mol",
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0310_A_147_1_A71EV2A-x0526%2BA%2B147%2B1_ligand.mol",
+          "fragalysis-files/{SUB_PATH}/A71EV2A-x0207_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_ligand.mol",
         ],
         "outfile": "merged.sdf",
-        "count": 1,
+        "count": 5,
+        "keepHydrogens": False,
         "smilesFieldName": "original SMILES",
         "fragIdField": "_Name",
         "proteinFieldName": "ref_pdb",
-        "proteinFieldValue": "A0152b",
+        "proteinFieldValue": "A71EV2A-x0207_A_151_1_A71EV2A-x0526%2BA%2B147%2B1_apo-desolv.pdb",
       }
       """
     Then the response should be ACCEPTED

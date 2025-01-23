@@ -14,7 +14,7 @@ Feature: Verify good Targets can be loaded against the public TAS
   The steps rely on 'sensitive' material that is expected to be provided
   by environment variables. The tests will alert if these are not set.
 
-  Scenario: Start with a new (empty) stack
+  Scenario: Start with a new stack
 
     Create a new (up to date) stack.
     We can pass-in some extra variables using the initial step's 'doc string'.
@@ -22,7 +22,7 @@ Feature: Verify good Targets can be loaded against the public TAS
     The variables it is expected to define will be passed to the
     corresponding AWX Job Template when it's launched.
 
-    Given an empty stack
+    Given a new stack using the image tag "latest"
     Then the landing page response should be OK
 
   Scenario Template: Load public targets

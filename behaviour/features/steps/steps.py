@@ -54,8 +54,10 @@ from s3_utils import check_bucket, get_object
 _DOWNLOAD_PATH = "."
 
 
-@given("an empty stack")  # pylint: disable=not-callable
-def an_empty_stack(context) -> None:
+@given(  # pylint: disable=not-callable
+    'a new stack using the image tag "{stack_image_tag}"'
+)
+def a_new_stack_using_the_image_tag_x(context, stack_image_tag) -> None:
     """Wipe any existing stack content and create a new (empty) one.
     The user can pass in a Dictionary encoded set of extra variables
     via the context.text attribute. This appears as a string.
@@ -86,6 +88,7 @@ def an_empty_stack(context) -> None:
     extra_vars: Dict[str, str] = {
         "stack_django_superuser_password": DJANGO_SUPERUSER_PASSWORD,
         "stack_name": stack_name,
+        "stack_image_tag": stack_image_tag,
         "stack_oidc_rp_client_id": stack_oidc_rp_client_id,
         "stack_oidc_rp_client_secret": get_stack_client_id_secret(),
     }
