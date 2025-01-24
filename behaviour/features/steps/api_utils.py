@@ -13,11 +13,17 @@ from requests import Response
 from requests_toolbelt import MultipartEncoder
 
 # Trailing slashes are important!
-LANDING_PAGE_ENDPOINT: str = "/viewer/react/landing/"
-UPLOAD_ENDPOINT = "/api/upload_target_experiments/"
+_LANDING_PAGE_ENDPOINT: str = "/viewer/react/landing/"
+
+_JOB_CONFIG_ENDPOINT: str = "/api/job_config/"
+_JOB_FILE_TRANSFER_ENDPOINT: str = "/api/job_file_transfer/"
+_JOB_REQUEST_ENDPOINT: str = "/api/job_request/"
+_SESSION_PROJECTS_ENDPOINT: str = "/api/session-projects/"
+_SNAPSHOTS_ENDPOINT: str = "/api/snapshots/"
+_UPLOAD_TARGET_EXPERIMENTS_ENDPOINT: str = "/api/upload_target_experiments/"
 
 # this needs to be kept more or less up to date
-USER_AGENT: str = (
+_USER_AGENT: str = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
@@ -78,7 +84,7 @@ def create_session_project(
     print(f"Creating SessionProject with data: {data}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, "/api/session-projects/"), json=data)
+        return session.post(urljoin(base_url, _SESSION_PROJECTS_ENDPOINT), json=data)
 
 
 def create_snapshot(
@@ -96,7 +102,7 @@ def create_snapshot(
     print(f"Creating Snapshot with data: {data}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, "/api/snapshots/"), json=data)
+        return session.post(urljoin(base_url, _SNAPSHOTS_ENDPOINT), json=data)
 
 
 def upload_target_experiment(
@@ -127,7 +133,7 @@ def upload_target_experiment(
 
         content_type = encoder.content_type
         session.headers.update({"Content-Type": content_type})
-        url = urljoin(base_url, UPLOAD_ENDPOINT)
+        url = urljoin(base_url, _UPLOAD_TARGET_EXPERIMENTS_ENDPOINT)
         return session.post(url, data=encoder, stream=True)
 
 
@@ -154,7 +160,7 @@ def initiate_job_file_transfer(
     print(f"Initiating Squonk file transfer with data: {data}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, "/api/job_file_transfer/"), json=data)
+        return session.post(urljoin(base_url, _JOB_FILE_TRANSFER_ENDPOINT), json=data)
 
 
 def initiate_job_request(
@@ -187,7 +193,7 @@ def initiate_job_request(
     print(f"Initiating Squonk file transfer with data: {data}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, "/api/job_request/"), json=data)
+        return session.post(urljoin(base_url, _JOB_REQUEST_ENDPOINT), json=data)
 
 
 def get_job_config(
@@ -208,7 +214,7 @@ def get_job_config(
     print(f"Getting JobConfig with params: {params}...")
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.get(urljoin(base_url, "/api/job_config/"), params=params)
+        return session.get(urljoin(base_url, _JOB_CONFIG_ENDPOINT), params=params)
 
 
 # Local functions
@@ -218,13 +224,13 @@ def _prepare_session(session, *, base_url: str, session_id: str) -> None:
     """Prepares a session for use with the stack."""
     session.headers.update(
         {
-            "User-Agent": USER_AGENT,
-            "Referer": urljoin(base_url, LANDING_PAGE_ENDPOINT),
+            "User-Agent": _USER_AGENT,
+            "Referer": urljoin(base_url, _LANDING_PAGE_ENDPOINT),
             "Referrer-policy": "same-origin",
         }
     )
     session.get(base_url)  # A GET sets any csrftoken
     if csrftoken := session.cookies.get("csrftoken", None):
-        session.headers.update({"X-CSRFToken": csrftoken, "User-Agent": USER_AGENT})
+        session.headers.update({"X-CSRFToken": csrftoken, "User-Agent": _USER_AGENT})
     if session_id:
         session.cookies.update({"sessionid": session_id})

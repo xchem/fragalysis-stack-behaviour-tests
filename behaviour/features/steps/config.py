@@ -58,3 +58,36 @@ AWX_STACK_CREATE_JOB_TEMPLATE: str = "User (%(username)s) Developer Fragalysis S
 AWX_STACK_WIPE_JOB_TEMPLATE: str = (
     "User (%(username)s) Developer Fragalysis Stack [WIPE]"
 )
+
+
+# Convenience functions for config values
+# (that raise exceptions if the config is not set)
+
+
+def get_stack_client_id_secret() -> str:
+    """Returns the configured Client ID secret"""
+    if not STACK_CLIENT_ID_SECRET:
+        raise ValueError(get_env_name("STACK_CLIENT_ID_SECRET") + " is not set")
+    return STACK_CLIENT_ID_SECRET
+
+
+def get_stack_name() -> str:
+    """Returns the configured stack name (lower case)"""
+    if not STACK_NAME:
+        raise ValueError(get_env_name("STACK_NAME") + " is not set")
+    return STACK_NAME.lower()
+
+
+def get_stack_username() -> str:
+    """Returns the AWX username - tha author of the stack."""
+    if not AWX_USERNAME:
+        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
+    return AWX_USERNAME
+
+
+def get_stack_url(name: str) -> str:
+    """Returns the stack URL (i.e. https://example.com) that is expected to have been
+    created by the AWX Job Template for the AWX user."""
+    if not AWX_USERNAME:
+        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
+    return f"https://fragalysis-{AWX_USERNAME.lower()}-{name.lower()}.xchem-dev.diamond.ac.uk"

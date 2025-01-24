@@ -61,8 +61,3 @@ def _check_env() -> None:
         raise ValueError(get_env_name("S3_SECRET_ACCESS_KEY") + " is not set")
     if S3_ACCESS_KEY_ID is None or S3_ACCESS_KEY_ID == "":
         raise ValueError(get_env_name("S3_ACCESS_KEY_ID") + " is not set")
-
-
-if __name__ == "__main__":
-    check_bucket("im-xchem-data")
-    get_object("im-xchem-data", "lb32627-66_v2.2_upload_1_2024-12_09.tgz")

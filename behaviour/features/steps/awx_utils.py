@@ -12,21 +12,6 @@ import yaml
 from config import AWX_HOST, AWX_PASSWORD, AWX_USERNAME, get_env_name
 
 
-def get_stack_url(name: str) -> str:
-    """Returns the stack URL (i.e. https://example.com) that is expected to have been
-    created by the AWX Job Template for the AWX user."""
-    if not AWX_USERNAME:
-        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
-    return f"https://fragalysis-{AWX_USERNAME.lower()}-{name.lower()}.xchem-dev.diamond.ac.uk"
-
-
-def get_stack_username() -> str:
-    """Returns the AWX username - tha author of the stack."""
-    if not AWX_USERNAME:
-        raise ValueError(get_env_name("AWX_USERNAME") + " is not set")
-    return AWX_USERNAME
-
-
 def launch_awx_job_template(template, *, extra_vars) -> None:
     """A utility to launch the named AWX JobTemplate
     while also providing extra variables via a temporary file.

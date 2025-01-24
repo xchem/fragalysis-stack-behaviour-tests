@@ -39,15 +39,19 @@ from api_utils import (
     initiate_job_request,
     upload_target_experiment,
 )
-from awx_utils import get_stack_url, get_stack_username, launch_awx_job_template
+from awx_utils import launch_awx_job_template
 from behave import given, then, when
-from browser_utils import get_stack_client_id_secret, get_stack_name, login
+from browser_utils import login
 from config import (
     AWX_STACK_CREATE_JOB_TEMPLATE,
     AWX_STACK_WIPE_JOB_TEMPLATE,
     DJANGO_SUPERUSER_PASSWORD,
     REQUEST_POLL_PERIOD_S,
     REQUEST_TIMEOUT,
+    get_stack_client_id_secret,
+    get_stack_name,
+    get_stack_url,
+    get_stack_username,
 )
 from s3_utils import check_bucket, get_object
 

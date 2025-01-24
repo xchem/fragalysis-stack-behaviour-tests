@@ -5,11 +5,8 @@ via a browser, such as logging in. Underlying logic is handled by playwright.
 import re
 from html import unescape
 
-from awx_utils import get_stack_url
 from config import (
     DJANGO_SUPERUSER_PASSWORD,
-    STACK_CLIENT_ID_SECRET,
-    STACK_NAME,
     STACK_PASSWORD,
     STACK_USERNAME,
     get_env_name,
@@ -21,20 +18,6 @@ from playwright.sync_api import expect, sync_playwright
 _RE_SESSION_ID = re.compile(r"\"sessionid\": \"([a-z0-9]+)\"")
 
 
-def get_stack_client_id_secret() -> str:
-    """Returns the configured Client ID secret"""
-    if not STACK_CLIENT_ID_SECRET:
-        raise ValueError(get_env_name("STACK_CLIENT_ID_SECRET") + " is not set")
-    return STACK_CLIENT_ID_SECRET
-
-
-def get_stack_name() -> str:
-    """Returns the configured stack name (lower case)"""
-    if not STACK_NAME:
-        raise ValueError(get_env_name("STACK_NAME") + " is not set")
-    return STACK_NAME.lower()
-
-
 def login(host_url: str, login_type: str = "cas") -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
     given a host url(i.e. https://example.com)."""
@@ -42,6 +25,8 @@ def login(host_url: str, login_type: str = "cas") -> str:
         raise ValueError(get_env_name("STACK_USERNAME") + " is not set")
     if not STACK_PASSWORD:
         raise ValueError(get_env_name("STACK_PASSWORD") + " is not set")
+    if not DJANGO_SUPERUSER_PASSWORD:
+        raise ValueError(get_env_name("DJANGO_SUPERUSER_PASSWORD") + " is not set")
 
     assert login_type in {"cas", "superuser"}
 
@@ -128,8 +113,3 @@ def _run_login_logic_for_superuser(
     browser.close()
 
     return session_id_value
-
-
-if __name__ == "__main__":
-    session_id = login(get_stack_url("behaviour"))
-    print(session_id)
