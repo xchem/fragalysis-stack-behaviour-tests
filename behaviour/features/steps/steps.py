@@ -198,6 +198,9 @@ def i_can_get_the_x_target_id(context, title) -> None:
     )
     assert resp.status_code == 200
 
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "results" in resp.json()
+    assert len(resp.json()["results"]) > 0
     target_id = resp.json()["results"][0]["id"]
     print(f"target_id={target_id}")
     context.target_id = target_id
@@ -222,6 +225,8 @@ def i_can_get_the_last_job_file_transfer_id(context) -> None:
     assert resp.status_code == 200
 
     # We only call this if we expect at least one JobFileTransfer record.
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "count" in resp.json()
     assert resp.json()["count"] > 0
     job_file_transfer_id = resp.json()["results"][-1]["id"]
     print(f"job_file_transfer_id={job_file_transfer_id}")
@@ -248,6 +253,8 @@ def i_can_get_the_last_job_file_transfer_sub_path(context) -> None:
     assert resp.status_code == 200
 
     # We only call this if we expect at least one JobFileTransfer record.
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "count" in resp.json()
     assert resp.json()["count"] > 0
     sub_path = resp.json()["results"][-1]["sub_path"]
     print(f"job_file_transfer_sub_path={sub_path}")
@@ -273,6 +280,9 @@ def i_can_get_the_x_project_id(context, title) -> None:
     )
     assert resp.status_code == 200
 
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "results" in resp.json()
+    assert len(resp.json()["results"]) > 0
     project_id = resp.json()["results"][0]["id"]
     print(f"project_id={project_id}")
     context.project_id = project_id
@@ -298,6 +308,9 @@ def i_can_get_the_x_session_project_id(context, title) -> None:
     )
     assert resp.status_code == 200
 
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "results" in resp.json()
+    assert len(resp.json()["results"]) > 0
     session_project_id = resp.json()["results"][0]["id"]
     print(f"Got session_project_id={session_project_id}")
     context.session_project_id = session_project_id
@@ -345,6 +358,9 @@ def i_can_get_the_x_snapshot_id(context, title) -> None:
     )
     assert resp.status_code == 200, f"Expected 200, was {resp.status_code}"
 
+    assert "application/json" in resp.headers.get("Content-Type", "")
+    assert "results" in resp.json()
+    assert len(resp.json()["results"]) > 0
     snapshot_id = resp.json()["results"][0]["id"]
     print(f"Got snapshot_id={snapshot_id}")
     context.snapshot_id = snapshot_id
