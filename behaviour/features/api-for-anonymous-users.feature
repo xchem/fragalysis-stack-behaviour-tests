@@ -37,7 +37,6 @@ Feature: Empty stack public API operations
       | /api/compound-mols-scores       |
       | /api/compound-sets              |
       | /api/compound-molecules         |
-      | /api/computedset_download       |
       | /api/cmpdimg                    |
       | /api/cmpdchoice                 |
       | /api/compounds                  |
