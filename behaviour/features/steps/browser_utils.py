@@ -27,13 +27,21 @@ def login(
     host_url: str, login_type: str = "cas", login_username: str = "DEFAULT"
 ) -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
-    given a host url(i.e. https://example.com). The default user is encapsulated int
-    the 'STACK' environment variables `BEHAVIOUR_STACK_USERNAME` and `BEHAVIOUR_STACK_PASSWORD`.
-    If another user is supplied, that user's PASSWORD environment variable must be set
-    using `BEHAVIOUR_USER_<username_PASSWORD`. The superuser login type has a built-in
-    username of 'admin' nad a password  that can be found in
-    `BEHAVIOUR_DJANGO_SUPERUSER_PASSWORD`. The login_username is ignored if the login_type
-    is 'superuser'.
+    given a host url(i.e. https://example.com).
+
+    The default user is encapsulated int the 'STACK' environment variables
+    'BEHAVIOUR_STACK_USERNAME' and 'BEHAVIOUR_STACK_PASSWORD'.
+    If a username is supplied, that user's PASSWORD environment variable must be set
+    using 'BEHAVIOUR_USER_<username>_PASSWORD' (e.g. the password for user 'a-b-c'
+    is expected in 'BEHAVIOUR_USER_A_B_C_PASSWORD').
+
+    You can also login using Keycloak's authentication system, using the login_type
+    of 'keycloak'.
+
+    A 'superuser' login type is also supported. This logs in via the Django built-in
+    authentication mechanism (the admin panel). It has a built-in username of 'admin'
+    and a password that can be found in 'BEHAVIOUR_DJANGO_SUPERUSER_PASSWORD'.
+    The login_username is ignored if the login_type is 'superuser'.
     """
     if not STACK_USERNAME:
         raise ValueError(get_env_name("STACK_USERNAME") + " is not set")
@@ -42,9 +50,8 @@ def login(
     if not DJANGO_SUPERUSER_PASSWORD:
         raise ValueError(get_env_name("DJANGO_SUPERUSER_PASSWORD") + " is not set")
 
-    assert login_type in {"cas", "superuser"}
+    assert login_type in {"cas", "keycloak", "superuser"}
 
-    # Another user?
     password: str = ""
     username: str = ""
     if login_type == "superuser":
@@ -59,7 +66,7 @@ def login(
         print(f"Logging in as '{login_username}'...")
         username = login_username
         # Password ENV is the upper-case username
-        # with hyphens replaced by underbars.
+        # with hyphens replaced by under-bars.
         password_env: str = f"{ENV_PREFIX}USER_{username.upper()}_PASSWORD".replace(
             "-", "_"
         )
@@ -73,6 +80,13 @@ def login(
     with sync_playwright() as spw:
         if login_type == "cas":
             session_id_value = _run_login_logic_for_cas(
+                spw,
+                host_url=host_url,
+                user=username,
+                password=password,
+            )
+        elif login_type == "keycloak":
+            session_id_value = _run_login_logic_for_keycloak(
                 spw,
                 host_url=host_url,
                 user=username,
@@ -95,8 +109,9 @@ def login(
 
 
 def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) -> str:
-    """Playwright logic to manage a login via CAS, returning the session ID.
-    We're given a host URL (i.e. https://example.com), a user and a password."""
+    """Playwright logic to manage a login via the keycloak federated authentication service
+    CAS, returning the session ID. We're given a host URL (i.e. https://example.com),
+    a user and a password."""
     browser = spw.chromium.launch(channel=_PW_LAUNCH_CHANNEL)
     page = browser.new_page()
 
@@ -108,6 +123,40 @@ def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) 
     page.get_by_role("textbox", name="Username:").fill(user)
     page.get_by_role("textbox", name="Password:").fill(password)
     page.get_by_role("button", name="Login").click()
+
+    print("Checking we're logged in...")
+    landing_page = f"{host_url}/viewer/react/landing"
+    page.goto(landing_page)
+    expect(page.get_by_text("You're logged in")).to_be_visible()
+
+    print("We're logged in!")
+
+    print("Getting Session ID...")
+    resp = page.goto(f"{host_url}/api/token")
+    raw_text = unescape(resp.text())
+    session_id_value: str = _RE_SESSION_ID.search(raw_text).group(1)
+    print(f"Got Session ID ({session_id_value})")
+
+    browser.close()
+
+    return session_id_value
+
+
+def _run_login_logic_for_keycloak(
+    spw: sync_playwright, *, host_url, user, password
+) -> str:
+    """Playwright logic to manage a login via Keycloak (directly), returning the session ID.
+    We're given a host URL (i.e. https://example.com), a user and a password."""
+    browser = spw.chromium.launch(channel=_PW_LAUNCH_CHANNEL)
+    page = browser.new_page()
+
+    login_url = f"{host_url}/accounts/login"
+    print(f"Logging in using Keycloak to '{login_url}' (as '{user}')...")
+
+    page.goto(login_url)
+    page.get_by_role("textbox", name="Username or email").fill(user)
+    page.get_by_role("textbox", name="Password").fill(password)
+    page.get_by_role("button", name="Sign In").click()
 
     print("Checking we're logged in...")
     landing_page = f"{host_url}/viewer/react/landing"
