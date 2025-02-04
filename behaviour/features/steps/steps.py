@@ -131,6 +131,21 @@ def i_can_login(context) -> None:
     assert context.session_id
 
 
+@when("I login as {username}")  # pylint: disable=not-callable
+def i_login_as_x(context, username) -> None:
+    """The password must be available in the environment
+    as BEHAVIOUR_USER_<username|upper>_PASSWORD, and sets the context members: -
+    - stack_name
+    - session_id"""
+    assert context.failed is False
+
+    context.stack_name = get_stack_name()
+    context.session_id = login(
+        get_stack_url(context.stack_name), login_username=username
+    )
+    assert context.session_id
+
+
 @given("I can login as a superuser")  # pylint: disable=not-callable
 def i_can_login_as_a_superuser(context) -> None:
     """The super user is the django admin user.
@@ -1081,6 +1096,35 @@ def i_reset_the_stack(context) -> None:
         base_url=stack_url,
         endpoint="/api/reset/",
         session_id=session_id,
+    )
+
+    context.response = resp
+    context.status_code = resp.status_code
+
+
+@when("I ask for access for the JobRequest")  # pylint: disable=not-callable
+def i_rask_for_access_for_the_job_request_for_x(context) -> None:
+    """Does a POST at /api/reset, relying on: -
+    - session_id (optional)
+    - stack_name
+    - job_request_id
+    Sets the following context members: -
+    - response
+    - status_code
+    """
+    assert context.failed is False
+    assert hasattr(context, "stack_name")
+    assert hasattr(context, "job_request_id")
+
+    stack_url = get_stack_url(context.stack_name)
+    session_id = context.session_id if hasattr(context, "session_id") else None
+    print("Giving access to {username}...")
+    params = {"job_request_id": context.job_request_id}
+    resp = api_get_request(
+        base_url=stack_url,
+        endpoint="/api/job_access/",
+        session_id=session_id,
+        params=params,
     )
 
     context.response = resp

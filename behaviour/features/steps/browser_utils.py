@@ -2,11 +2,13 @@
 """Utilities for interacting with the fragalysis UI that are normally accomplished
 via a browser, such as logging in. Underlying logic is handled by playwright.
 """
+import os
 import re
 from html import unescape
 
 from config import (
     DJANGO_SUPERUSER_PASSWORD,
+    ENV_PREFIX,
     STACK_PASSWORD,
     STACK_USERNAME,
     get_env_name,
@@ -14,13 +16,25 @@ from config import (
 
 from playwright.sync_api import expect, sync_playwright
 
+# The playwright launch channel (i.e. Google Chrome?)
+_PW_LAUNCH_CHANNEL: str = "chrome"
+
 # How to find the session ID from the /api/token page...
 _RE_SESSION_ID = re.compile(r"\"sessionid\": \"([a-z0-9]+)\"")
 
 
-def login(host_url: str, login_type: str = "cas") -> str:
+def login(
+    host_url: str, login_type: str = "cas", login_username: str = "DEFAULT"
+) -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
-    given a host url(i.e. https://example.com)."""
+    given a host url(i.e. https://example.com). The default user is encapsulated int
+    the 'STACK' environment variables `BEHAVIOUR_STACK_USERNAME` and `BEHAVIOUR_STACK_PASSWORD`.
+    If another user is supplied, that user's PASSWORD environment variable must be set
+    using `BEHAVIOUR_USER_<username_PASSWORD`. The superuser login type has a built-in
+    username of 'admin' nad a password  that can be found in
+    `BEHAVIOUR_DJANGO_SUPERUSER_PASSWORD`. The login_username is ignored if the login_type
+    is 'superuser'.
+    """
     if not STACK_USERNAME:
         raise ValueError(get_env_name("STACK_USERNAME") + " is not set")
     if not STACK_PASSWORD:
@@ -30,21 +44,46 @@ def login(host_url: str, login_type: str = "cas") -> str:
 
     assert login_type in {"cas", "superuser"}
 
+    # Another user?
+    password: str = ""
+    username: str = ""
+    if login_type == "superuser":
+        print("Logging in as 'admin'...")
+        username = "admin"
+        password = DJANGO_SUPERUSER_PASSWORD
+    elif login_username == "DEFAULT":
+        print("Logging in as 'DEFAULT'...")
+        username = STACK_USERNAME
+        password = STACK_PASSWORD
+    elif login_username:
+        print(f"Logging in as '{login_username}'...")
+        username = login_username
+        # Password ENV is the upper-case username
+        # with hyphens replaced by underbars.
+        password_env: str = f"{ENV_PREFIX}USER_{username.upper()}_PASSWORD".replace(
+            "-", "_"
+        )
+        password = os.environ.get(password_env)
+        if not password:
+            raise ValueError(f"{password_env} is not set")
+    assert username
+    assert password
+
     session_id_value: str = ""
     with sync_playwright() as spw:
         if login_type == "cas":
             session_id_value = _run_login_logic_for_cas(
                 spw,
                 host_url=host_url,
-                user=STACK_USERNAME,
-                password=STACK_PASSWORD,
+                user=username,
+                password=password,
             )
         elif login_type == "superuser":
             session_id_value = _run_login_logic_for_superuser(
                 spw,
                 host_url=host_url,
-                user="admin",
-                password=DJANGO_SUPERUSER_PASSWORD,
+                user=username,
+                password=password,
             )
         else:
             raise ValueError(f"Unknown login type: {login_type}")
@@ -58,7 +97,7 @@ def login(host_url: str, login_type: str = "cas") -> str:
 def _run_login_logic_for_cas(spw: sync_playwright, *, host_url, user, password) -> str:
     """Playwright logic to manage a login via CAS, returning the session ID.
     We're given a host URL (i.e. https://example.com), a user and a password."""
-    browser = spw.chromium.launch()
+    browser = spw.chromium.launch(channel=_PW_LAUNCH_CHANNEL)
     page = browser.new_page()
 
     login_url = f"{host_url}/accounts/login"
@@ -93,7 +132,7 @@ def _run_login_logic_for_superuser(
 ) -> str:
     """Playwright logic to manage a login via the Django admin panel.
     There is no session here."""
-    browser = spw.chromium.launch()
+    browser = spw.chromium.launch(channel=_PW_LAUNCH_CHANNEL)
     page = browser.new_page()
 
     login_url = f"{host_url}/admin/login"

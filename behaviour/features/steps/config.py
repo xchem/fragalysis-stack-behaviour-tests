@@ -7,16 +7,16 @@ import os
 from typing import Optional
 
 # All of our environment variables have this prefix...
-_ENV_PREFIX = "BEHAVIOUR_"
+ENV_PREFIX = "BEHAVIOUR_"
 
 
 def get_env_name(name: str) -> str:
     """Get the name of the environment variable for the given name"""
-    return f"{_ENV_PREFIX}{name}"
+    return f"{ENV_PREFIX}{name}"
 
 
 def _get(name: str, default_value: Optional[str] = None) -> Optional[str]:
-    return os.environ.get(f"{_ENV_PREFIX}{name}", default_value)
+    return os.environ.get(f"{ENV_PREFIX}{name}", default_value)
 
 
 # The AWX host (without a protocol, i.e. 'example.com') and
