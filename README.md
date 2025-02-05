@@ -43,8 +43,7 @@ current health of your clone with: -
 
     pre-commit run --all-files
 
-## Getting started
-
+## Running the behaviour tests
 You will need Python (ideally 3.11 or better) and [poetry].
 
 Create a suitable Python environment: -
@@ -60,8 +59,6 @@ As a one-time setup, install the playwright dependencies: -
 
     playwright install
 
-## Running the behaviour tests
-
 To run the stack behaviour tests run `behave` from the `behaviour` directory: -
 
     push behaviour
@@ -69,14 +66,17 @@ To run the stack behaviour tests run `behave` from the `behaviour` directory: -
 
 >   For further information read `bdd/README.md`
 
-## Running the UI tests
-
+## Running the Playwright (UI) tests
 Run the tests from the project root or `playwright` directory: -
 
     npm init playwright@latest
     npm install dotenv
 
     npx playwright test
+
+To update the set of screenshots used in comparison tests run: -
+
+    npx playwright test --update-snapshots
 
 ---
 
