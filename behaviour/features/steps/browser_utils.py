@@ -13,7 +13,6 @@ from config import (
     STACK_USERNAME,
     get_env_name,
 )
-
 from playwright.sync_api import expect, sync_playwright
 
 # The playwright launch channel (i.e. Google Chrome?)
