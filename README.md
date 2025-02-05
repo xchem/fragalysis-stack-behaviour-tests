@@ -71,10 +71,12 @@ To run the stack behaviour tests run `behave` from the `behaviour` directory: -
 
 ## Running the UI tests
 
-Run the tests from the project root or `playwright` directory using pytest,
-forcing the Fragalysis supported Chrome browser: -
+Run the tests from the project root or `playwright` directory: -
 
-    pytest --browser-channel chrome
+    npm init playwright@latest
+    npm install dotenv
+
+    npx playwright test
 
 ---
 
