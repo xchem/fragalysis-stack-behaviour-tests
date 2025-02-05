@@ -1,6 +1,8 @@
 """
 Common config for the behaviour test steps.
 Essentially all the environment variables we need to run the tests.
+
+PLEASE: Coordinate any environment variable changes with the playwright tests.
 """
 
 import os
