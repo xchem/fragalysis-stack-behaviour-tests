@@ -16,7 +16,7 @@ test('login : positive', async ({ page }) => {
   await page.getByRole("textbox", {name: "Username:"}).fill(`${stackUsername}`)
   await page.getByRole("textbox", {name: "Password:"}).fill(`${stackPassword}`)
   await page.getByRole("button", {name: "Login"}).click()
-  await expect(page.getByText("You're logged in")).toBeVisible()
+  expect(page.getByText("You're logged in")).toBeVisible()
   await page.getByRole("button", {name: /close/i}).click()
 
 });

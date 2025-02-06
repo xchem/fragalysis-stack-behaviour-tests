@@ -14,6 +14,11 @@ export default defineConfig({
   // Opt out of parallel tests on CI.
   workers: process.env.CI ? 1 : 1,
 
+  // Path template for snapshot files.
+  // At the moment we remove the browser and platform from the path
+  // and put everything into a Snapshots directory.
+  snapshotPathTemplate: '{testDir}/Snapshots/{testFilePath}/{arg}{ext}',
+
   reporter: 'html',
 
   // Shared settings for all the projects below.
@@ -40,10 +45,7 @@ export default defineConfig({
 
   // Assertion-specific templates
   expect: {
-    timeout: 5_000,
-    toHaveScreenshot: {
-      pathTemplate: '{testDir}/Screenshots/{testFilePath}/{arg}{ext}',
-    },
+    timeout: 2_000,
     toMatchSnapshot: {
       maxDiffPixelRatio: 0.02,
     },
