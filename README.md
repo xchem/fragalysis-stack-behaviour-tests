@@ -64,13 +64,21 @@ To run the stack behaviour tests run `behave` from the `behaviour` directory: -
     push behaviour
     behave
 
->   For further information read `bdd/README.md`
+>   For further information read `behaviour/README.md`
 
 ## Running the Playwright (UI) tests
-Run the tests from the project root or `playwright` directory: -
+the Playwright (UI) tests currently rely on a a stack with the A71EV2A Target
+already loaded. This is the case if you run the tests immediate after the
+behaviour tests, which will have already loaded this target.
 
-    npm init playwright@latest
-    npm install dotenv
+The playwright tests depend on some of the environment variables used
+by the behaviour tests, so you should have already set these up.
+
+Enure you have npm/node installed and then prepare playwright: -
+
+    npx playwright install --with-deps chrome
+
+Run the tests from the project root directory: -
 
     npx playwright test
 
