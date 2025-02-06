@@ -1,23 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Read environment variables from file.
-// https://github.com/motdotla/dotenv
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '.env') });
-
 // See https://playwright.dev/docs/test-configuration.
 export default defineConfig({
 
   testDir: './playwright',
   fullyParallel: false,
+  timeout: 600_000,
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
   // Retries on CI?
   retries: process.env.CI ? 1 : 0,
   // Opt out of parallel tests on CI.
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1,
 
   reporter: 'html',
 
@@ -34,14 +29,24 @@ export default defineConfig({
   projects: [
     {
       name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        // Full HD resolution...
+        viewport: {width: 1920, height: 1080},
+      },
     },
   ],
 
   // Assertion-specific templates
   expect: {
+    timeout: 5_000,
     toHaveScreenshot: {
       pathTemplate: '{testDir}/Screenshots/{testFilePath}/{arg}{ext}',
+      maxDiffPixels: 50,
+    },
+    toMatchSnapshot: {
+      maxDiffPixelRatio: 0.1,
     },
   },
 });

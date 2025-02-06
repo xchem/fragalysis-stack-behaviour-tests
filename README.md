@@ -78,6 +78,10 @@ To update the set of screenshots used in comparison tests run: -
 
     npx playwright test --update-snapshots
 
+You can do a lot of debugging using the built-in UI/browser: -
+
+    npx playwright test --ui
+
 ---
 
 [behave]: https://behave.readthedocs.io/en/latest/
