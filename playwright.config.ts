@@ -43,10 +43,9 @@ export default defineConfig({
     timeout: 5_000,
     toHaveScreenshot: {
       pathTemplate: '{testDir}/Screenshots/{testFilePath}/{arg}{ext}',
-      maxDiffPixels: 50,
     },
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.1,
+      maxDiffPixelRatio: 0.02,
     },
   },
 });

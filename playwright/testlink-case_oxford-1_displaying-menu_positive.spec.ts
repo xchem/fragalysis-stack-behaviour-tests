@@ -12,7 +12,7 @@ test('displaying menu : positive', async ({ page }) => {
   await page.waitForTimeout(1500)
   await expect(page).toHaveScreenshot(
     "side-menu.png",
-    {clip: {x: 0, y: 0, width: 170, height: 800}},
+    {clip: {x: 0, y: 0, width: 170, height: 1080}},
   )
 
   // 2
@@ -25,7 +25,7 @@ test('displaying menu : positive', async ({ page }) => {
   // we can verify that the 'NEW PROJECT' button is not present.
   await expect(page).toHaveScreenshot(
     "lh-top-bar.png",
-    {clip: {x: 0, y: 0, width: 700, height: 38}},
+    {clip: {x: 0, y: 0, width: 700, height: 42}},
   )
 
   // 3
