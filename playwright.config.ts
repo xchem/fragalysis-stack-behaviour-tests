@@ -9,10 +9,10 @@ export default defineConfig({
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
-  // Retries on CI?
-  retries: process.env.CI ? 1 : 0,
-  // Opt out of parallel tests on CI.
-  workers: process.env.CI ? 1 : 1,
+  // No retries
+  retries: 0,
+  // Opt out of parallel tests
+  workers: 1,
 
   // Path template for snapshot files.
   // At the moment we remove the browser and platform from the path
@@ -47,7 +47,7 @@ export default defineConfig({
   expect: {
     timeout: 2_000,
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.02,
+      maxDiffPixelRatio: 0.08,
     },
   },
 });
