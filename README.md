@@ -66,7 +66,7 @@ To run the stack behaviour tests run `behave` from the `behaviour` directory: -
 
 >   For further information read `behaviour/README.md`
 
-## Running the Playwright (UI) tests
+## Running (and debugging) the Playwright (UI) tests
 the Playwright (UI) tests currently rely on a a stack with the A71EV2A Target
 already loaded. This is the case if you run the tests immediate after the
 behaviour tests, which will have already loaded this target.
@@ -86,9 +86,17 @@ To update the set of screenshots used in comparison tests run: -
 
     npx playwright test --update-snapshots
 
+## Debugging the Playwright (UI) tests
 You can do a lot of debugging using the built-in UI/browser: -
 
     npx playwright test --ui
+
+You can also investigate CI failures by downloading the **playwright-report** artifact,
+unpack it, and then run `show-report`, naming the unpacked directory.
+This will allow you to inspect the failures including comparing screen snapshots
+(this is a really cool feature!): -
+
+    npx playwright show-report ~/Downloads/playwright-report
 
 ---
 
