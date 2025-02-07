@@ -86,17 +86,7 @@ To update the set of screenshots used in comparison tests run: -
 
     npx playwright test --update-snapshots
 
-## Debugging the Playwright (UI) tests
-You can do a lot of debugging using the built-in UI/browser: -
-
-    npx playwright test --ui
-
-You can also investigate CI failures by downloading the **playwright-report** artifact,
-unpack it, and then run `show-report`, naming the unpacked directory.
-This will allow you to inspect the failures including comparing screen snapshots
-(this is a really cool feature!): -
-
-    npx playwright show-report ~/Downloads/playwright-report
+>   For further information read `playwright/README.md`
 
 ---
 
