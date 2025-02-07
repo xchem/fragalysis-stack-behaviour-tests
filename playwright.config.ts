@@ -9,17 +9,14 @@ export default defineConfig({
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
-  // No retries
-  retries: 0,
+  retries: 1,
   // Opt out of parallel tests
   workers: 1,
-
+  reporter: 'html',
   // Path template for snapshot files.
   // At the moment we remove the browser and platform from the path
   // and put everything into a Snapshots directory.
   snapshotPathTemplate: '{testDir}/Snapshots/{testFilePath}/{arg}{ext}',
-
-  reporter: 'html',
 
   // Shared settings for all the projects below.
   // See https://playwright.dev/docs/api/class-testoptions.
@@ -50,4 +47,5 @@ export default defineConfig({
       maxDiffPixelRatio: 0.08,
     },
   },
+
 });

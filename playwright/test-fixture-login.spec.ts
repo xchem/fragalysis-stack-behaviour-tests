@@ -1,5 +1,5 @@
 /**
- * A test that simply ensures the login fixture is working.
+ * Test the login fixture.
  */
 import { test } from './fixture-login'
 

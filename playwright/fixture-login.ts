@@ -16,8 +16,8 @@ const test = baseTest.extend<{loggedInPage: any}> ({
     await page.goto(`${stackURL}/accounts/login`)
     // fill-in login details
     await page.getByRole("link", {name: "Diamond CAS"}).click()
-    await page.getByRole("textbox", {name: "Username:"}).fill(`${stackUsername}`)
-    await page.getByRole("textbox", {name: "Password:"}).fill(`${stackPassword}`)
+    await page.getByRole("textbox", {name: "Username:"}).fill(stackUsername)
+    await page.getByRole("textbox", {name: "Password:"}).fill(stackPassword)
     await page.getByRole("button", {name: "Login"}).click()
     // Make the logged-in page available for tests
     await use(page);

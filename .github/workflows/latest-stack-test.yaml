@@ -70,15 +70,15 @@ jobs:
         behave --tags=-wip
       env:
         BEHAVIOUR_AWS_ACCESS_KEY_ID: ${{ secrets.BEHAVIOUR_AWS_ACCESS_KEY_ID }}
-        BEHAVIOUR_AWS_SECRET_ACCESS_KEY: ${{ secrets.BEHAVIOUR_AWS_SECRET_ACCESS_KEY }}
         BEHAVIOUR_AWS_ENDPOINT_URL: ${{ secrets.BEHAVIOUR_AWS_ENDPOINT_URL }}
+        BEHAVIOUR_AWS_SECRET_ACCESS_KEY: ${{ secrets.BEHAVIOUR_AWS_SECRET_ACCESS_KEY }}
         BEHAVIOUR_AWX_HOST: ${{ secrets.BEHAVIOUR_AWX_HOSTNAME }}
-        BEHAVIOUR_AWX_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
         BEHAVIOUR_AWX_PASSWORD: ${{ secrets.BEHAVIOUR_AWX_PASSWORD }}
-        BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
-        BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
+        BEHAVIOUR_AWX_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
         BEHAVIOUR_STACK_CLIENT_ID_SECRET: ${{ secrets.BEHAVIOUR_STACK_CLIENT_ID_SECRET }}
         BEHAVIOUR_STACK_NAME: behaviour
+        BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
+        BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
 
   playwright-test:
     runs-on: ubuntu-latest
@@ -94,7 +94,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '23'
+        node-version: '23.7'
 
     - name: Install dependencies
       run: npm ci
@@ -107,9 +107,10 @@ jobs:
         npx playwright test
       env:
         BEHAVIOUR_AWX_USERNAME: ${{ secrets.BEHAVIOUR_AWX_USERNAME }}
-        BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
-        BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
+        BEHAVIOUR_PLAYWRIGHT_TEST_TARGET: A71EV2A
         BEHAVIOUR_STACK_NAME: behaviour
+        BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
+        BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
 
     - name: Archive Playwright Report
       uses: actions/upload-artifact@v4
