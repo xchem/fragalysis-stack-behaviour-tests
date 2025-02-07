@@ -9,14 +9,14 @@
 
 [![latest stack test](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml/badge.svg)](https://github.com/xchem/fragalysis-stack-behaviour-tests/actions/workflows/latest-stack-test.yaml)
 
-A repository of (experimental) Python-based end-2-end behaviour tests using [playwright]
-for UI-based testing of the Fragalysis Stack, and [behave] for [cucumber]-like testing
-of the API.
+A repository of behaviour tests for the backend (b/e) and frontend (f/e).
+The b/e uses the Python-based [behave] package for [cucumber]-like testing
+of the API, and the f/e uses TypeScript-based [Playwright] tests.
 
-If you want any login/authentication logic to work the Fragalysis Stack that's
-under test must be known to the authentication system (Keycloak) using a suitable
-keycloak client ID and secret (which must be provided in the corresponding
-`BEHAVIOUR_` values).
+The tests are dynamically configured using numerous environment variables,
+extracted for the tests by `config.py` (for the b/e) and `config.ts` (for the f/e).
+All variables are prefixed with the value `BEHAVIOUR_` and are set in CI
+using GitHUb **Secrets** defined in the **behaviour-stack-alan** GitHub environment.
 
 ## Contributing
 
@@ -26,7 +26,7 @@ The project uses: -
   upstream repository
 - [Commitizen] to enforce a [Conventional Commit] commit message format
 - [Black] as a code formatter
-- [Poetry] as a package manager
+- [Poetry] as a package manager (for the b/e)
 
 You **MUST** comply with these choices in order to  contribute to the project.
 
@@ -43,7 +43,7 @@ current health of your clone with: -
 
     pre-commit run --all-files
 
-## Running the behaviour tests
+## Running the b/e behaviour tests
 You will need Python (ideally 3.11 or better) and [poetry].
 
 Create a suitable Python environment: -
@@ -55,19 +55,19 @@ Many tests rely on sensitive information that's made available through various
 `BEHAVIOUR_` environment variables. The tests _should_ tell you what you need to
 provide if something's missing.
 
-As a one-time setup, install the playwright dependencies: -
+As a one-time setup, install the playwright dependencies (required in order to login): -
 
     playwright install
 
-To run the stack behaviour tests run `behave` from the `behaviour` directory: -
+To run the b/e behaviour tests run `behave` from the `behaviour` directory: -
 
     push behaviour
     behave
 
 >   For further information read `behaviour/README.md`
 
-## Running (and debugging) the Playwright (UI) tests
-the Playwright (UI) tests currently rely on a a stack with the A71EV2A Target
+## Running the f/e playwright tests
+the Playwright tests currently rely on a a stack with the a Target
 already loaded. This is the case if you run the tests immediate after the
 behaviour tests, which will have already loaded this target.
 
