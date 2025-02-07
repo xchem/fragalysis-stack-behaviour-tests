@@ -1,12 +1,16 @@
+/**
+ * M2MS TestLink Test Case Oxford-2 (14 Nov 2024)
+ *
+ * Note: This test case uses the App Menu/Login rather than the login fixture.
+ */
 import { test, expect } from '@playwright/test';
 import { stackURL, stackUsername, stackPassword } from './config'
 
-test('login : positive', async ({ page }) => {
-
-  await page.goto(stackURL)
+test('login', async ({ page }) => {
 
   // 1
   //---
+  await page.goto(stackURL)
   await page.getByRole("button", {name: "Menu"}).click()
   await page.getByRole("button", {name: "Login"}).click()
 
