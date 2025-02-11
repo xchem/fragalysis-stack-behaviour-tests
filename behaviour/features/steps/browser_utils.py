@@ -23,7 +23,7 @@ _RE_SESSION_ID = re.compile(r"\"sessionid\": \"([a-z0-9]+)\"")
 
 
 def login(
-    host_url: str, login_type: str = "cas", login_username: str = "DEFAULT"
+    host_url: str, *, login_type: str = "cas", login_username: str = "DEFAULT"
 ) -> str:
     """Login to a Fragalysis Stack (with assumed CAS authentication)
     given a host url(i.e. https://example.com).
@@ -35,7 +35,7 @@ def login(
     is expected in 'BEHAVIOUR_USER_A_B_C_PASSWORD').
 
     You can also login using Keycloak's authentication system, using the login_type
-    of 'keycloak'.
+    of 'keycloak' (or 'keycloak-fragalysis' if using the custom fragalysis Login theme).
 
     A 'superuser' login type is also supported. This logs in via the Django built-in
     authentication mechanism (the admin panel). It has a built-in username of 'admin'
@@ -49,7 +49,7 @@ def login(
     if not DJANGO_SUPERUSER_PASSWORD:
         raise ValueError(get_env_name("DJANGO_SUPERUSER_PASSWORD") + " is not set")
 
-    assert login_type in {"cas", "keycloak", "superuser"}
+    assert login_type in {"cas", "keycloak", "keycloak-fragalysis", "superuser"}
 
     password: str = ""
     username: str = ""
@@ -86,6 +86,13 @@ def login(
             )
         elif login_type == "keycloak":
             session_id_value = _run_login_logic_for_keycloak(
+                spw,
+                host_url=host_url,
+                user=username,
+                password=password,
+            )
+        elif login_type == "keycloak-fragalysis":
+            session_id_value = _run_login_logic_for_keycloak_fragalysis(
                 spw,
                 host_url=host_url,
                 user=username,
@@ -160,6 +167,39 @@ def _run_login_logic_for_keycloak(
     print("Checking we're logged in...")
     landing_page = f"{host_url}/viewer/react/landing"
     page.goto(landing_page)
+    expect(page.get_by_text("You're logged in")).to_be_visible()
+
+    print("We're logged in!")
+
+    print("Getting Session ID...")
+    resp = page.goto(f"{host_url}/api/token")
+    raw_text = unescape(resp.text())
+    session_id_value: str = _RE_SESSION_ID.search(raw_text).group(1)
+    print(f"Got Session ID ({session_id_value})")
+
+    browser.close()
+
+    return session_id_value
+
+
+def _run_login_logic_for_keycloak_fragalysis(
+    spw: sync_playwright, *, host_url, user, password
+) -> str:
+    """Playwright logic to manage a login via our custom Keycloak theme, returning the session ID.
+    We're given a host URL (i.e. https://example.com), a user and a password."""
+    browser = spw.chromium.launch(channel=_PW_LAUNCH_CHANNEL)
+    page = browser.new_page()
+
+    login_url = f"{host_url}/accounts/login"
+    print(f"Logging in using Keycloak to '{login_url}' (as '{user}')...")
+
+    page.goto(login_url)
+    page.get_by_text("Or click here to sign in with Keycloak...").click()
+    page.get_by_role("textbox", name="username").fill(user)
+    page.get_by_role("textbox", name="password").fill(password)
+    page.get_by_role("button", name="Sign In").click()
+
+    print("Checking we're logged in...")
     expect(page.get_by_text("You're logged in")).to_be_visible()
 
     print("We're logged in!")
