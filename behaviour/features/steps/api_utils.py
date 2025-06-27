@@ -109,9 +109,13 @@ def create_session_project(
         "target": target_id,
     }
     print(f"Creating SessionProject with data: {data}...")
+
+    url: str = urljoin(base_url, _SESSION_PROJECTS_ENDPOINT)
+    _logit(url, "POST", data=data)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, _SESSION_PROJECTS_ENDPOINT), json=data)
+        return session.post(url, json=data)
 
 
 def create_snapshot(
@@ -127,9 +131,13 @@ def create_snapshot(
         "children": [],
     }
     print(f"Creating Snapshot with data: {data}...")
+
+    url: str = urljoin(base_url, _SNAPSHOTS_ENDPOINT)
+    _logit(url, "POST", data=data)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, _SNAPSHOTS_ENDPOINT), json=data)
+        return session.post(url, json=data)
 
 
 def upload_target_experiment(
@@ -141,6 +149,10 @@ def upload_target_experiment(
     file_name: str,
 ) -> Response:
     """Uploads target data to the stack using the given TAS and file path."""
+
+    url: str = urljoin(base_url, _UPLOAD_TARGET_EXPERIMENTS_ENDPOINT)
+    _logit(url, "POST")
+
     with requests.Session() as session:
 
         _prepare_session(session, base_url=base_url, session_id=session_id)
@@ -160,7 +172,6 @@ def upload_target_experiment(
 
         content_type = encoder.content_type
         session.headers.update({"Content-Type": content_type})
-        url = urljoin(base_url, _UPLOAD_TARGET_EXPERIMENTS_ENDPOINT)
         return session.post(url, data=encoder, stream=True)
 
 
@@ -185,9 +196,13 @@ def initiate_job_file_transfer(
         "compounds": compounds,
     }
     print(f"Initiating Squonk file transfer with data: {data}...")
+
+    url: str = urljoin(base_url, _JOB_FILE_TRANSFER_ENDPOINT)
+    _logit(url, "POST", data=data)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, _JOB_FILE_TRANSFER_ENDPOINT), json=data)
+        return session.post(url, json=data)
 
 
 def initiate_job_request(
@@ -218,9 +233,13 @@ def initiate_job_request(
         "squonk_job_spec": job_spec_str,
     }
     print(f"Initiating Squonk file transfer with data: {data}...")
+
+    url: str = urljoin(base_url, _JOB_REQUEST_ENDPOINT)
+    _logit(url, "POST", data=data)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, _JOB_REQUEST_ENDPOINT), json=data)
+        return session.post(url, json=data)
 
 
 def get_job_config(
@@ -239,9 +258,13 @@ def get_job_config(
         "job_version": job_version,
     }
     print(f"Getting JobConfig with params: {params}...")
+
+    url: str = urljoin(base_url, _JOB_CONFIG_ENDPOINT)
+    _logit(url, "GET", params=params)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.get(urljoin(base_url, _JOB_CONFIG_ENDPOINT), params=params)
+        return session.get(url, params=params)
 
 
 # Local functions
