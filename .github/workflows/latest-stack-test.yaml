@@ -13,6 +13,7 @@ on:
 # The tests rely on the same stack user and name.
 concurrency:
   group: behaviour-stack
+  cancel-in-progress: false
 
 jobs:
   behaviour-test:
