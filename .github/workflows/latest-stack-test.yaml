@@ -79,6 +79,13 @@ jobs:
         BEHAVIOUR_STACK_NAME: behaviour
         BEHAVIOUR_STACK_PASSWORD: ${{ secrets.BEHAVIOUR_STACK_PASSWORD }}
         BEHAVIOUR_STACK_USERNAME: ${{ secrets.BEHAVIOUR_STACK_USERNAME }}
+    - name: Upload behaviour request log artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: request-log
+        path: request.log
+        compression-level: 9
+        retention-days: 5
 
   playwright-test:
     runs-on: ubuntu-latest
