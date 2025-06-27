@@ -5,6 +5,7 @@ used primarily to reduce the number of lines in the step file.
 
 import json
 import os
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from urllib.parse import urljoin
 
@@ -22,10 +23,27 @@ _SESSION_PROJECTS_ENDPOINT: str = "/api/session-projects/"
 _SNAPSHOTS_ENDPOINT: str = "/api/snapshots/"
 _UPLOAD_TARGET_EXPERIMENTS_ENDPOINT: str = "/api/upload_target_experiments/"
 
+# A file request data is written to (for debug)
+_REQUEST_LOGFILE: str = "request.log"
+
 # this needs to be kept more or less up to date
 _USER_AGENT: str = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
+
+
+def _logit(
+    url: str,
+    method: str,
+    *,
+    data: Optional[Dict[str, Any]] = None,
+    params: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Writes the data to a log file for debugging."""
+    now_utc: datetime = datetime.now(timezone.utc)
+    debug: str = f"{now_utc}: {method} {url} json={data} params={params}"
+    with open(_REQUEST_LOGFILE, "a", encoding="utf-8") as logfile:
+        print(debug, file=logfile)
 
 
 def api_get_request(
@@ -39,9 +57,12 @@ def api_get_request(
     The base url is the root of the apu, i.e. https://example.com. The method is the
     API method to call, i.e. /api/job_config and the session ID is the session ID to
     use for the call."""
+    url: str = urljoin(base_url, endpoint)
+    _logit(url, "GET", params=params)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.get(urljoin(base_url, endpoint), params=params)
+        return session.get(url, params=params)
 
 
 def api_delete_request(
@@ -51,9 +72,12 @@ def api_delete_request(
     The base url is the root of the apu, i.e. https://example.com. The method is the
     API method to call, i.e. /api/job_config and the session ID is the session ID to
     use for the call."""
+    url: str = urljoin(base_url, endpoint)
+    _logit(url, "DELETE")
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.delete(urljoin(base_url, endpoint))
+        return session.delete(url)
 
 
 def api_post_request(
@@ -67,9 +91,12 @@ def api_post_request(
     The base url is the root of the apu, i.e. https://example.com. The method is the
     API method to call, i.e. /api/job_config and the session ID is the session ID to
     use for the call."""
+    url: str = urljoin(base_url, endpoint)
+    _logit(url, "POST", data=data)
+
     with requests.Session() as session:
         _prepare_session(session, base_url=base_url, session_id=session_id)
-        return session.post(urljoin(base_url, endpoint), json=data)
+        return session.post(url, json=data)
 
 
 def create_session_project(
