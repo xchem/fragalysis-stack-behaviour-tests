@@ -83,9 +83,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: request-log
-        path: request.log
+        path: behaviour/request.log
         compression-level: 9
-        retention-days: 5
+        retention-days: 7
 
   playwright-test:
     runs-on: ubuntu-latest
