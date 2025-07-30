@@ -56,9 +56,9 @@ REQUEST_TIMEOUT: int = 8
 # To create a stack we need to know the names of templates (in the AWX server)
 # that are responsible for its creation and destruction.
 # These templates are expected to be owned by the given AWX_USERNAME.
-AWX_STACK_CREATE_JOB_TEMPLATE: str = "User (%(username)s) Developer Fragalysis Stack"
+AWX_STACK_CREATE_JOB_TEMPLATE: str = "User (%(username)s) Behaviour Fragalysis Stack"
 AWX_STACK_WIPE_JOB_TEMPLATE: str = (
-    "User (%(username)s) Developer Fragalysis Stack [WIPE]"
+    "User (%(username)s) Behaviour Fragalysis Stack [WIPE]"
 )
 
 
